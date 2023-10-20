@@ -22,8 +22,8 @@ jobs:
 
     - name: Install and build
       run: |
-        yarn install
         yarn global add node-gyp
+        yarn install
         yarn run build
       env:
           CI: false
