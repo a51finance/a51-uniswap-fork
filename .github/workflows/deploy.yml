@@ -8,6 +8,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
+      AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -22,17 +25,18 @@ jobs:
         yarn install
         yarn global add node-gyp
         yarn run build
+      env:
+          CI: false
 
     - name: Deploy to S3
-      uses: jakejarvis/s3-sync-action@master
+      uses: reggionick/s3-deploy@v3
       with:
-        args: --acl public-read --follow-symlinks --delete
-      env:
-        AWS_S3_BUCKET: dex-51
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}  # or your AWS region
-        SOURCE_DIR: 'build'
+        folder: build
+        bucket: 'dex-51'
+        bucket-region: 'us-east-2'
+        delete-removed: true
+        no-cache: true
+        private: true
 
     # Add this step if you want to invalidate CloudFront cache after each deploy.
     # - name: Invalidate CloudFront Distribution
