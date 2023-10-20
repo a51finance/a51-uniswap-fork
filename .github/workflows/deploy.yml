@@ -1,0 +1,38 @@
+name: Deploy to S3
+
+on:
+  push:
+    branches:
+      - s3-integration
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Build React App
+      run: |
+        nvm install 18 && nvm use 18
+        yarn install
+        yarn run build
+
+    - name: Deploy to S3
+      uses: jakejarvis/s3-sync-action@master
+      with:
+        args: --acl public-read --follow-symlinks --delete
+      env:
+        AWS_S3_BUCKET: dex-51
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ secrets.AWS_DEFAULT_REGION }}  # or your AWS region
+        SOURCE_DIR: 'build'
+
+    # Add this step if you want to invalidate CloudFront cache after each deploy.
+    # - name: Invalidate CloudFront Distribution
+    #   run: |
+    #     aws cloudfront create-invalidation --distribution-id https://d219h6gvglr9x6.cloudfront.net --paths "/*"
+    #   env:
+    #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
