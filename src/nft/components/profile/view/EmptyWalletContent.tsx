@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import { ThemedText } from 'theme/components'
 
-import { EmptyActivityIcon, EmptyNftsIcon, EmptyPoolsIcon, EmptyTokensIcon } from './icons'
+import { EmptyActivityIcon, EmptyTokensIcon } from './icons'
 
 const EmptyWalletContainer = styled.div`
   display: flex;
@@ -44,7 +44,6 @@ const ActionButton = styled.button`
   font-size: 16px;
   line-height: 24px;
 `
-
 type EmptyWalletContent = {
   title: React.ReactNode
   subtitle: React.ReactNode
@@ -52,15 +51,8 @@ type EmptyWalletContent = {
   urlPath?: string
   icon: React.ReactNode
 }
-type EmptyWalletContentType = 'nft' | 'token' | 'activity' | 'pool'
+type EmptyWalletContentType = 'token' | 'activity'
 const EMPTY_WALLET_CONTENT: { [key in EmptyWalletContentType]: EmptyWalletContent } = {
-  nft: {
-    title: <Trans>No NFTs yet</Trans>,
-    subtitle: <Trans>Buy or transfer NFTs to this wallet to get started.</Trans>,
-    actionText: <Trans>Explore NFTs</Trans>,
-    urlPath: '/nfts',
-    icon: <EmptyNftsIcon />,
-  },
   token: {
     title: <Trans>No tokens yet</Trans>,
     subtitle: <Trans>Buy or transfer tokens to this wallet to get started.</Trans>,
@@ -73,13 +65,6 @@ const EMPTY_WALLET_CONTENT: { [key in EmptyWalletContentType]: EmptyWalletConten
     subtitle: <Trans>Your onchain transactions and crypto purchases will appear here.</Trans>,
     icon: <EmptyActivityIcon />,
   },
-  pool: {
-    title: <Trans>No pools yet</Trans>,
-    subtitle: <Trans>Open a new position or create a pool to get started.</Trans>,
-    actionText: <Trans>+ New position</Trans>,
-    urlPath: '/pool',
-    icon: <EmptyPoolsIcon />,
-  },
 }
 
 interface EmptyWalletContentProps {
@@ -87,7 +72,7 @@ interface EmptyWalletContentProps {
   onNavigateClick?: () => void
 }
 
-const EmptyWalletContent = ({ type = 'nft', onNavigateClick }: EmptyWalletContentProps) => {
+const EmptyWalletContent = ({ type = 'token', onNavigateClick }: EmptyWalletContentProps) => {
   const navigate = useNavigate()
 
   const content = EMPTY_WALLET_CONTENT[type]

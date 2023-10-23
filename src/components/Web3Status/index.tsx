@@ -14,7 +14,6 @@ import useENSName from 'hooks/useENSName'
 import useLast from 'hooks/useLast'
 import { navSearchInputVisibleSize } from 'hooks/useScreenSize'
 import { Portal } from 'nft/components/common/Portal'
-import { useIsNftClaimAvailable } from 'nft/hooks/useIsNftClaimAvailable'
 import { darken } from 'polished'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { useAppSelector } from 'state/hooks'
@@ -149,7 +148,6 @@ function Web3StatusInner() {
     sendAnalyticsEvent(InterfaceEventName.ACCOUNT_DROPDOWN_BUTTON_CLICKED)
     toggleAccountDrawer()
   }, [toggleAccountDrawer])
-  const isClaimAvailable = useIsNftClaimAvailable((state) => state.isClaimAvailable)
 
   const { hasPendingActivity, pendingActivityCount } = usePendingActivity()
 
@@ -207,7 +205,6 @@ function Web3StatusInner() {
           data-testid="web3-status-connected"
           onClick={handleWalletDropdownClick}
           pending={hasPendingActivity}
-          isClaimAvailable={isClaimAvailable}
         >
           {!hasPendingActivity && (
             <StatusIcon account={account} size={24} connection={connection} showMiniIcons={false} />
