@@ -24,29 +24,7 @@ const defaultState = {
     openModal: null,
     popupList: [],
   },
-  burn: {
-    independentField: 'LIQUIDITY_PERCENT',
-    typedValue: '0',
-  },
-  burnV3: {
-    percent: 0,
-  },
   logs: {},
-  mint: {
-    independentField: 'CURRENCY_A',
-    leftRangeTypedValue: '',
-    otherTypedValue: '',
-    rightRangeTypedValue: '',
-    startPriceTypedValue: '',
-    typedValue: '',
-  },
-  mintV3: {
-    independentField: 'CURRENCY_A',
-    leftRangeTypedValue: '',
-    rightRangeTypedValue: '',
-    startPriceTypedValue: '',
-    typedValue: '',
-  },
   multicall: {
     callResults: {},
   },

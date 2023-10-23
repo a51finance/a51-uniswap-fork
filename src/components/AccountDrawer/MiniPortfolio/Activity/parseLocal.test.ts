@@ -180,57 +180,6 @@ jest.mock('../../../../state/transactions/hooks', () => {
           },
           '0xunwrap'
         ),
-        ...mockMultiStatus(
-          {
-            type: MockTxType.ADD_LIQUIDITY_V3_POOL,
-            createPool: false,
-            baseCurrencyId: MockUSDC_MAINNET.address,
-            quoteCurrencyId: MockDAI.address,
-            feeAmount: 500,
-            expectedAmountBaseRaw: mockCurrencyAmountRawUSDC,
-            expectedAmountQuoteRaw: mockCurrencyAmountRaw,
-          },
-          '0xadd_liquidity_v3'
-        ),
-        ...mockMultiStatus(
-          {
-            type: MockTxType.REMOVE_LIQUIDITY_V3,
-            baseCurrencyId: MockUSDC_MAINNET.address,
-            quoteCurrencyId: MockDAI.address,
-            expectedAmountBaseRaw: mockCurrencyAmountRawUSDC,
-            expectedAmountQuoteRaw: mockCurrencyAmountRaw,
-          },
-          '0xremove_liquidity_v3'
-        ),
-        ...mockMultiStatus(
-          {
-            type: MockTxType.ADD_LIQUIDITY_V2_POOL,
-            baseCurrencyId: MockUSDC_MAINNET.address,
-            quoteCurrencyId: MockDAI.address,
-            expectedAmountBaseRaw: mockCurrencyAmountRawUSDC,
-            expectedAmountQuoteRaw: mockCurrencyAmountRaw,
-          },
-          '0xadd_liquidity_v2'
-        ),
-        ...mockMultiStatus(
-          {
-            type: MockTxType.COLLECT_FEES,
-            currencyId0: MockUSDC_MAINNET.address,
-            currencyId1: MockDAI.address,
-            expectedCurrencyOwed0: mockCurrencyAmountRawUSDC,
-            expectedCurrencyOwed1: mockCurrencyAmountRaw,
-          },
-          '0xcollect_fees'
-        ),
-        ...mockMultiStatus(
-          {
-            type: MockTxType.MIGRATE_LIQUIDITY_V3,
-            baseCurrencyId: MockUSDC_MAINNET.address,
-            quoteCurrencyId: MockDAI.address,
-            isFork: false,
-          },
-          '0xmigrate_v3_liquidity'
-        ),
       ]
     },
   }
