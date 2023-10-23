@@ -6,7 +6,6 @@ import RouterLabel from 'components/RouterLabel'
 import Row, { RowBetween } from 'components/Row'
 import { MouseoverTooltip, TooltipSize } from 'components/Tooltip'
 import { SUPPORTED_GAS_ESTIMATE_CHAIN_IDS } from 'constants/chains'
-import { useFeesEnabled } from 'featureFlags/flags/useFees'
 import useHoverProps from 'hooks/useHoverProps'
 import { useUSDPrice } from 'hooks/useUSDPrice'
 import { useIsMobile } from 'nft/hooks'
@@ -151,7 +150,6 @@ function useLineItem(props: SwapLineItemProps): LineItemData | undefined {
   const { trade, syncing, allowedSlippage, type } = props
   const { formatNumber, formatPercent } = useFormatter()
   const isAutoSlippage = useUserSlippageTolerance()[0] === SlippageTolerance.Auto
-  const feesEnabled = useFeesEnabled()
 
   const isUniswapX = isUniswapXTrade(trade)
   const isPreview = isPreviewTrade(trade)
@@ -205,7 +203,6 @@ function useLineItem(props: SwapLineItemProps): LineItemData | undefined {
         ),
       }
     case SwapLineItemType.SWAP_FEE: {
-      if (!feesEnabled) return
       if (isPreview) return { Label: () => <Trans>Fee</Trans>, Value: () => <Loading /> }
       return {
         Label: () => <Trans>Fee</Trans>,
