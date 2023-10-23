@@ -2,7 +2,7 @@ import { useWeb3React } from '@web3-react/core'
 import { Trace } from 'analytics'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Loader from 'components/Icons/LoadingSpinner'
-import NavBar, { PageTabs } from 'components/NavBar'
+import NavBar from 'components/NavBar'
 import { UK_BANNER_HEIGHT, UK_BANNER_HEIGHT_MD, UK_BANNER_HEIGHT_SM, UkBanner } from 'components/NavBar/UkBanner'
 import { useFeatureFlagsIsLoaded } from 'featureFlags'
 import { useAtom } from 'jotai'
@@ -177,9 +177,9 @@ export default function App() {
             )}
           </Suspense>
         </BodyWrapper>
-        <MobileBottomBar>
+        {/* <MobileBottomBar>
           <PageTabs />
-        </MobileBottomBar>
+        </MobileBottomBar> */}
       </Trace>
     </ErrorBoundary>
   )
