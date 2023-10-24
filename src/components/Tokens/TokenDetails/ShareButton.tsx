@@ -79,9 +79,9 @@ export default function ShareButton({ currency }: { currency: Currency }) {
     window.open(
       `https://twitter.com/intent/tweet?text=Check%20out%20${currency.name}%20(${
         currency.symbol
-      })%20https://https://dex.a51.finance/%23/tokens/${chainIdToBackendName(
+      })%20https://dex.a51.finance/%23/tokens/${chainIdToBackendName(
         currency.chainId
-      ).toLowerCase()}/${address}%20via%20@uniswap`,
+      ).toLowerCase()}/${address}%20via%20@A51_Fi`,
       'newwindow',
       `left=${positionX}, top=${positionY}, width=${TWITTER_WIDTH}, height=${TWITTER_HEIGHT}`
     )
