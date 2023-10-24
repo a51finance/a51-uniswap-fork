@@ -1,12 +1,9 @@
 import { Trans } from '@lingui/macro'
-import { BrowserEvent, InterfaceElementName, SwapEventName } from '@uniswap/analytics-events'
 import { Percent } from '@uniswap/sdk-core'
-import { TraceEvent, useTrace } from 'analytics'
 import AnimatedDropdown from 'components/AnimatedDropdown'
 import Column from 'components/Column'
 import { LoadingOpacityContainer } from 'components/Loader/styled'
 import { RowBetween, RowFixed } from 'components/Row'
-import { formatCommonPropertiesForTrade } from 'lib/utils/analytics'
 import { useState } from 'react'
 import { ChevronDown } from 'react-feather'
 import { InterfaceTrade } from 'state/routing/types'
@@ -48,48 +45,36 @@ interface SwapDetailsProps {
 }
 
 export default function SwapDetailsDropdown(props: SwapDetailsProps) {
-  const { trade, syncing, loading, allowedSlippage } = props
+  const { trade, syncing, loading } = props
   const theme = useTheme()
   const [showDetails, setShowDetails] = useState(false)
-  const trace = useTrace()
 
   return (
     <Wrapper>
-      <TraceEvent
-        events={[BrowserEvent.onClick]}
-        name={SwapEventName.SWAP_DETAILS_EXPANDED}
-        element={InterfaceElementName.SWAP_DETAILS_DROPDOWN}
-        properties={{
-          ...(trade ? formatCommonPropertiesForTrade(trade, allowedSlippage) : {}),
-          ...trace,
-        }}
-        shouldLogImpression={!showDetails}
+      <StyledHeaderRow
+        data-testid="swap-details-header-row"
+        onClick={() => setShowDetails(!showDetails)}
+        disabled={!trade}
+        open={showDetails}
       >
-        <StyledHeaderRow
-          data-testid="swap-details-header-row"
-          onClick={() => setShowDetails(!showDetails)}
-          disabled={!trade}
-          open={showDetails}
-        >
-          <RowFixed>
-            {trade ? (
-              <LoadingOpacityContainer $loading={syncing} data-testid="trade-price-container">
-                <TradePrice price={trade.executionPrice} />
-              </LoadingOpacityContainer>
-            ) : loading || syncing ? (
-              <ThemedText.DeprecatedMain fontSize={14}>
-                <Trans>Fetching best price...</Trans>
-              </ThemedText.DeprecatedMain>
-            ) : null}
-          </RowFixed>
-          <RowFixed gap="xs">
-            {!showDetails && isSubmittableTrade(trade) && (
-              <GasEstimateTooltip trade={trade} loading={syncing || loading} />
-            )}
-            <RotatingArrow stroke={trade ? theme.neutral3 : theme.surface2} open={Boolean(trade && showDetails)} />
-          </RowFixed>
-        </StyledHeaderRow>
-      </TraceEvent>
+        <RowFixed>
+          {trade ? (
+            <LoadingOpacityContainer $loading={syncing} data-testid="trade-price-container">
+              <TradePrice price={trade.executionPrice} />
+            </LoadingOpacityContainer>
+          ) : loading || syncing ? (
+            <ThemedText.DeprecatedMain fontSize={14}>
+              <Trans>Fetching best price...</Trans>
+            </ThemedText.DeprecatedMain>
+          ) : null}
+        </RowFixed>
+        <RowFixed gap="xs">
+          {!showDetails && isSubmittableTrade(trade) && (
+            <GasEstimateTooltip trade={trade} loading={syncing || loading} />
+          )}
+          <RotatingArrow stroke={trade ? theme.neutral3 : theme.surface2} open={Boolean(trade && showDetails)} />
+        </RowFixed>
+      </StyledHeaderRow>
       <AdvancedSwapDetails {...props} open={showDetails} />
     </Wrapper>
   )

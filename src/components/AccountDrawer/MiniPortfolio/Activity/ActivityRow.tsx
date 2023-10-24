@@ -1,5 +1,3 @@
-import { BrowserEvent, InterfaceElementName, SharedEventName } from '@uniswap/analytics-events'
-import { TraceEvent } from 'analytics'
 import Column from 'components/Column'
 import AlertTriangleFilled from 'components/Icons/AlertTriangleFilled'
 import { LoaderV2 } from 'components/Icons/LoadingSpinner'
@@ -48,7 +46,6 @@ export function ActivityRow({ activity }: { activity: Activity }) {
   const openOffchainActivityModal = useOpenOffchainActivityModal()
 
   const { ENSName } = useENSName(otherAccount)
-  const explorerUrl = getExplorerLink(chainId, hash, ExplorerDataType.TRANSACTION)
 
   const onClick = useCallback(() => {
     if (offchainOrderStatus) {
@@ -60,33 +57,26 @@ export function ActivityRow({ activity }: { activity: Activity }) {
   }, [offchainOrderStatus, chainId, hash, openOffchainActivityModal])
 
   return (
-    <TraceEvent
-      events={[BrowserEvent.onClick]}
-      name={SharedEventName.ELEMENT_CLICKED}
-      element={InterfaceElementName.MINI_PORTFOLIO_ACTIVITY_ROW}
-      properties={{ hash, chain_id: chainId, explorer_url: explorerUrl }}
-    >
-      <PortfolioRow
-        left={
-          <Column>
-            <PortfolioLogo chainId={chainId} currencies={currencies} images={logos} accountAddress={otherAccount} />
-          </Column>
-        }
-        title={
-          <Row gap="4px">
-            {prefixIconSrc && <img height="14px" width="14px" src={prefixIconSrc} alt="" />}
-            <ThemedText.SubHeader>{title}</ThemedText.SubHeader>
-          </Row>
-        }
-        descriptor={
-          <ActivityRowDescriptor color="neutral2">
-            {descriptor}
-            {ENSName ?? shortenAddress(otherAccount)}
-          </ActivityRowDescriptor>
-        }
-        right={<StatusIndicator activity={activity} />}
-        onClick={onClick}
-      />
-    </TraceEvent>
+    <PortfolioRow
+      left={
+        <Column>
+          <PortfolioLogo chainId={chainId} currencies={currencies} images={logos} accountAddress={otherAccount} />
+        </Column>
+      }
+      title={
+        <Row gap="4px">
+          {prefixIconSrc && <img height="14px" width="14px" src={prefixIconSrc} alt="" />}
+          <ThemedText.SubHeader>{title}</ThemedText.SubHeader>
+        </Row>
+      }
+      descriptor={
+        <ActivityRowDescriptor color="neutral2">
+          {descriptor}
+          {ENSName ?? shortenAddress(otherAccount)}
+        </ActivityRowDescriptor>
+      }
+      right={<StatusIndicator activity={activity} />}
+      onClick={onClick}
+    />
   )
 }

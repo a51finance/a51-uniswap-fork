@@ -1,9 +1,7 @@
 // eslint-disable-next-line no-restricted-imports
 import { t } from '@lingui/macro'
 import { useLingui } from '@lingui/react'
-import { BrowserEvent, InterfaceElementName, InterfaceEventName, InterfaceSectionName } from '@uniswap/analytics-events'
 import { useWeb3React } from '@web3-react/core'
-import { sendAnalyticsEvent, Trace, TraceEvent, useTrace } from 'analytics'
 import clsx from 'clsx'
 import { Search } from 'components/Icons/Search'
 import { useSearchTokens } from 'graphql/data/SearchTokens'
@@ -90,14 +88,6 @@ export const SearchBar = () => {
 
   const isMobileOrTablet = isMobile || isTablet || !isNavSearchInputVisible
 
-  const trace = useTrace({ section: InterfaceSectionName.NAVBAR_SEARCH })
-
-  const navbarSearchEventProperties = {
-    navbar_search_input_text: debouncedSearchValue,
-    hasInput: debouncedSearchValue && debouncedSearchValue.length > 0,
-    ...trace,
-  }
-
   const { i18n } = useLingui() // subscribe to locale changes
   const placeholderText = isMobileOrTablet ? t(i18n)`Search` : t(i18n)`Search tokens`
 
@@ -127,7 +117,7 @@ export const SearchBar = () => {
   }, [handleKeyPress, inputRef])
 
   return (
-    <Trace section={InterfaceSectionName.NAVBAR_SEARCH}>
+    <>
       <Column
         data-cy="search-bar"
         position={{ sm: 'fixed', md: 'absolute' }}
@@ -167,27 +157,20 @@ export const SearchBar = () => {
               <ChevronLeftIcon />
             </Box>
           </Box>
-          <TraceEvent
-            events={[BrowserEvent.onFocus]}
-            name={InterfaceEventName.NAVBAR_SEARCH_SELECTED}
-            element={InterfaceElementName.NAVBAR_SEARCH_INPUT}
-            properties={{ ...trace }}
-          >
-            <Box
-              as="input"
-              data-cy="search-bar-input"
-              placeholder={placeholderText}
-              onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                !isOpen && toggleOpen()
-                setSearchValue(event.target.value)
-              }}
-              onBlur={() => sendAnalyticsEvent(InterfaceEventName.NAVBAR_SEARCH_EXITED, navbarSearchEventProperties)}
-              className={`${styles.searchBarInput} ${styles.searchContentLeftAlign}`}
-              value={searchValue}
-              ref={inputRef}
-              width="full"
-            />
-          </TraceEvent>
+
+          <Box
+            as="input"
+            data-cy="search-bar-input"
+            placeholder={placeholderText}
+            onChange={(event: ChangeEvent<HTMLInputElement>) => {
+              !isOpen && toggleOpen()
+              setSearchValue(event.target.value)
+            }}
+            className={`${styles.searchBarInput} ${styles.searchContentLeftAlign}`}
+            value={searchValue}
+            ref={inputRef}
+            width="full"
+          />
           {!isOpen && <KeyShortCut>/</KeyShortCut>}
         </Row>
         <Column overflow="hidden" className={clsx(isOpen ? styles.visible : styles.hidden)}>
@@ -207,6 +190,6 @@ export const SearchBar = () => {
           <NavMagnifyingGlassIcon />
         </NavIcon>
       )}
-    </Trace>
+    </>
   )
 }

@@ -26,10 +26,6 @@ const Nav = styled.nav`
   z-index: 2;
 `
 
-const IconRow = ({ children }: { children: ReactNode }) => {
-  return <Row className={menu.IconRow}>{children}</Row>
-}
-
 const Icon = ({ href, children }: { href?: string; children: ReactNode }) => {
   return (
     <>
@@ -75,6 +71,7 @@ const MenuItem = ({ href, dataTestId, id, isActive, children }: MenuItemProps) =
   )
 }
 
+// eslint-disable-next-line import/no-unused-modules
 export const PageTabs = () => {
   const { pathname } = useLocation()
   const { chainId: connectedChainId } = useWeb3React()

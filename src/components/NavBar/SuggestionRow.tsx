@@ -1,5 +1,3 @@
-import { InterfaceEventName } from '@uniswap/analytics-events'
-import { sendAnalyticsEvent } from 'analytics'
 import QueryTokenLogo from 'components/Logo/QueryTokenLogo'
 import TokenSafetyIcon from 'components/TokenSafety/TokenSafetyIcon'
 import { checkSearchTokenWarning } from 'constants/tokenSafety'
@@ -33,10 +31,9 @@ interface TokenRowProps {
   setHoveredIndex: (index: number | undefined) => void
   toggleOpen: () => void
   index: number
-  eventProperties: Record<string, unknown>
 }
 
-export const TokenRow = ({ token, isHovered, setHoveredIndex, toggleOpen, index, eventProperties }: TokenRowProps) => {
+export const TokenRow = ({ token, isHovered, setHoveredIndex, toggleOpen, index }: TokenRowProps) => {
   const addRecentlySearchedAsset = useAddRecentlySearchedAsset()
   const navigate = useNavigate()
   const { formatFiatPrice, formatDelta } = useFormatter()
@@ -46,8 +43,7 @@ export const TokenRow = ({ token, isHovered, setHoveredIndex, toggleOpen, index,
     address && addRecentlySearchedAsset({ address, chain: token.chain })
 
     toggleOpen()
-    sendAnalyticsEvent(InterfaceEventName.NAVBAR_RESULT_SELECTED, { ...eventProperties })
-  }, [addRecentlySearchedAsset, token, toggleOpen, eventProperties])
+  }, [addRecentlySearchedAsset, token, toggleOpen])
 
   const isInfoExplorePageEnabled = useInfoExplorePageEnabled()
 

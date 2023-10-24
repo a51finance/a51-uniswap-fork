@@ -1,6 +1,4 @@
-import { BrowserEvent, InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events'
 import { useWeb3React } from '@web3-react/core'
-import { TraceEvent } from 'analytics'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import Loader from 'components/Icons/LoadingSpinner'
 import { ActivationStatus, useActivationState } from 'connection/activate'
@@ -90,27 +88,20 @@ export default function Option({ connection }: OptionProps) {
 
   return (
     <Wrapper disabled={isSomeOptionPending}>
-      <TraceEvent
-        events={[BrowserEvent.onClick]}
-        name={InterfaceEventName.WALLET_SELECTED}
-        properties={{ wallet_type: connection.getName() }}
-        element={InterfaceElementName.WALLET_TYPE_OPTION}
+      <OptionCardClickable
+        disabled={isSomeOptionPending}
+        onClick={activate}
+        selected={isCurrentOptionPending}
+        data-testid={`wallet-option-${connection.type}`}
       >
-        <OptionCardClickable
-          disabled={isSomeOptionPending}
-          onClick={activate}
-          selected={isCurrentOptionPending}
-          data-testid={`wallet-option-${connection.type}`}
-        >
-          <OptionCardLeft>
-            <IconWrapper>
-              <img src={connection.getIcon?.(isDarkMode)} alt={connection.getName()} />
-            </IconWrapper>
-            <HeaderText>{connection.getName()}</HeaderText>
-          </OptionCardLeft>
-          {isCurrentOptionPending && <Loader />}
-        </OptionCardClickable>
-      </TraceEvent>
+        <OptionCardLeft>
+          <IconWrapper>
+            <img src={connection.getIcon?.(isDarkMode)} alt={connection.getName()} />
+          </IconWrapper>
+          <HeaderText>{connection.getName()}</HeaderText>
+        </OptionCardLeft>
+        {isCurrentOptionPending && <Loader />}
+      </OptionCardClickable>
     </Wrapper>
   )
 }

@@ -1,7 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { BrowserEvent, InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events'
 import { useWeb3React } from '@web3-react/core'
-import { sendAnalyticsEvent, TraceEvent } from 'analytics'
 import PortfolioDrawer, { useAccountDrawer } from 'components/AccountDrawer'
 import { usePendingActivity } from 'components/AccountDrawer/MiniPortfolio/Activity/hooks'
 import Loader, { LoaderV3 } from 'components/Icons/LoadingSpinner'
@@ -145,7 +143,6 @@ function Web3StatusInner() {
 
   const [, toggleAccountDrawer] = useAccountDrawer()
   const handleWalletDropdownClick = useCallback(() => {
-    sendAnalyticsEvent(InterfaceEventName.ACCOUNT_DROPDOWN_BUTTON_CLICKED)
     toggleAccountDrawer()
   }, [toggleAccountDrawer])
 
@@ -195,52 +192,40 @@ function Web3StatusInner() {
 
   if (account) {
     return (
-      <TraceEvent
-        events={[BrowserEvent.onClick]}
-        name={InterfaceEventName.MINI_PORTFOLIO_TOGGLED}
-        properties={{ type: 'open' }}
+      <Web3StatusConnected
+        disabled={Boolean(switchingChain)}
+        data-testid="web3-status-connected"
+        onClick={handleWalletDropdownClick}
+        pending={hasPendingActivity}
       >
-        <Web3StatusConnected
-          disabled={Boolean(switchingChain)}
-          data-testid="web3-status-connected"
-          onClick={handleWalletDropdownClick}
-          pending={hasPendingActivity}
-        >
-          {!hasPendingActivity && (
-            <StatusIcon account={account} size={24} connection={connection} showMiniIcons={false} />
-          )}
-          {hasPendingActivity ? (
-            <RowBetween>
-              <Text>
-                <Trans>{pendingActivityCount} Pending</Trans>
-              </Text>{' '}
-              <Loader stroke="white" />
-            </RowBetween>
-          ) : (
-            <AddressAndChevronContainer>
-              <Text>{ENSName ?? shortenAddress(account)}</Text>
-            </AddressAndChevronContainer>
-          )}
-        </Web3StatusConnected>
-      </TraceEvent>
+        {!hasPendingActivity && (
+          <StatusIcon account={account} size={24} connection={connection} showMiniIcons={false} />
+        )}
+        {hasPendingActivity ? (
+          <RowBetween>
+            <Text>
+              <Trans>{pendingActivityCount} Pending</Trans>
+            </Text>{' '}
+            <Loader stroke="white" />
+          </RowBetween>
+        ) : (
+          <AddressAndChevronContainer>
+            <Text>{ENSName ?? shortenAddress(account)}</Text>
+          </AddressAndChevronContainer>
+        )}
+      </Web3StatusConnected>
     )
   } else {
     return (
-      <TraceEvent
-        events={[BrowserEvent.onClick]}
-        name={InterfaceEventName.CONNECT_WALLET_BUTTON_CLICKED}
-        element={InterfaceElementName.CONNECT_WALLET_BUTTON}
+      <Web3StatusConnectWrapper
+        tabIndex={0}
+        onKeyPress={(e) => e.key === 'Enter' && handleWalletDropdownClick()}
+        onClick={handleWalletDropdownClick}
       >
-        <Web3StatusConnectWrapper
-          tabIndex={0}
-          onKeyPress={(e) => e.key === 'Enter' && handleWalletDropdownClick()}
-          onClick={handleWalletDropdownClick}
-        >
-          <StyledConnectButton tabIndex={-1} data-testid="navbar-connect-wallet">
-            <Trans>Connect</Trans>
-          </StyledConnectButton>
-        </Web3StatusConnectWrapper>
-      </TraceEvent>
+        <StyledConnectButton tabIndex={-1} data-testid="navbar-connect-wallet">
+          <Trans>Connect</Trans>
+        </StyledConnectButton>
+      </Web3StatusConnectWrapper>
     )
   }
 }

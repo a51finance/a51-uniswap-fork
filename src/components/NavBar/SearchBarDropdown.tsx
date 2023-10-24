@@ -1,8 +1,6 @@
 import { Trans } from '@lingui/macro'
-import { InterfaceSectionName, NavBarSearchTypes } from '@uniswap/analytics-events'
 import { ChainId } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
-import { useTrace } from 'analytics'
 import clsx from 'clsx'
 import Badge from 'components/Badge'
 import { ChainLogo } from 'components/Logo/ChainLogo'
@@ -33,7 +31,6 @@ interface SearchBarDropdownSectionProps {
   startingIndex: number
   setHoveredIndex: (index: number | undefined) => void
   isLoading?: boolean
-  eventProperties: Record<string, unknown>
 }
 
 const SearchBarDropdownSection = ({
@@ -45,7 +42,6 @@ const SearchBarDropdownSection = ({
   startingIndex,
   setHoveredIndex,
   isLoading,
-  eventProperties,
 }: SearchBarDropdownSectionProps) => {
   return (
     <Column gap="4" data-testid="searchbar-dropdown">
@@ -65,12 +61,6 @@ const SearchBarDropdownSection = ({
               setHoveredIndex={setHoveredIndex}
               toggleOpen={toggleOpen}
               index={index + startingIndex}
-              eventProperties={{
-                position: index + startingIndex,
-                selected_search_result_name: suggestion.name,
-                selected_search_result_address: suggestion.address,
-                ...eventProperties,
-              }}
             />
           )
         )}
@@ -127,7 +117,7 @@ export const SearchBarDropdown = (props: SearchBarDropdownProps) => {
   )
 }
 
-function SearchBarDropdownContents({ toggleOpen, tokens, queryText, hasInput }: SearchBarDropdownProps): JSX.Element {
+function SearchBarDropdownContents({ toggleOpen, tokens, hasInput }: SearchBarDropdownProps): JSX.Element {
   const [hoveredIndex, setHoveredIndex] = useState<number | undefined>(0)
   const { data: searchHistory } = useRecentlySearchedAssets()
   const shortenedHistory = useMemo(() => searchHistory?.slice(0, 2) ?? [...Array<SearchToken>(2)], [searchHistory])
@@ -173,14 +163,6 @@ function SearchBarDropdownContents({ toggleOpen, tokens, queryText, hasInput }: 
     }
   }, [toggleOpen, hoveredIndex, totalSuggestions])
 
-  const trace = JSON.stringify(useTrace({ section: InterfaceSectionName.NAVBAR_SEARCH }))
-
-  const eventProperties = {
-    total_suggestions: totalSuggestions,
-    query_text: queryText,
-    ...JSON.parse(trace),
-  }
-
   const tokenSearchResults =
     tokens.length > 0 ? (
       <SearchBarDropdownSection
@@ -189,10 +171,6 @@ function SearchBarDropdownContents({ toggleOpen, tokens, queryText, hasInput }: 
         setHoveredIndex={setHoveredIndex}
         toggleOpen={toggleOpen}
         suggestions={tokens}
-        eventProperties={{
-          suggestion_type: NavBarSearchTypes.TOKEN_SUGGESTION,
-          ...eventProperties,
-        }}
         header={<Trans>Tokens</Trans>}
       />
     ) : (
@@ -214,10 +192,6 @@ function SearchBarDropdownContents({ toggleOpen, tokens, queryText, hasInput }: 
           setHoveredIndex={setHoveredIndex}
           toggleOpen={toggleOpen}
           suggestions={shortenedHistory}
-          eventProperties={{
-            suggestion_type: NavBarSearchTypes.RECENT_SEARCH,
-            ...eventProperties,
-          }}
           header={<Trans>Recent searches</Trans>}
           headerIcon={<ClockIcon />}
           isLoading={!searchHistory}
@@ -229,10 +203,6 @@ function SearchBarDropdownContents({ toggleOpen, tokens, queryText, hasInput }: 
         setHoveredIndex={setHoveredIndex}
         toggleOpen={toggleOpen}
         suggestions={trendingTokens}
-        eventProperties={{
-          suggestion_type: NavBarSearchTypes.TOKEN_TRENDING,
-          ...eventProperties,
-        }}
         header={<Trans>Popular tokens</Trans>}
         headerIcon={<TrendingArrow />}
         isLoading={!trendingTokenData}

@@ -1,6 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { BrowserEvent, InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events'
-import { TraceEvent } from 'analytics'
 import searchIcon from 'assets/svg/search.svg'
 import xIcon from 'assets/svg/x.svg'
 import { useInfoExplorePageEnabled } from 'featureFlags/flags/infoExplore'
@@ -93,25 +91,19 @@ export default function SearchBar({ tab }: { tab?: string }) {
     <SearchBarContainer isInfoExplorePageEnabled={isInfoExplorePageEnabled}>
       <Trans
         render={({ translation }) => (
-          <TraceEvent
-            events={[BrowserEvent.onFocus]}
-            name={InterfaceEventName.EXPLORE_SEARCH_SELECTED}
-            element={InterfaceElementName.EXPLORE_SEARCH_INPUT}
-          >
-            <SearchInput
-              isInfoExplorePageEnabled={isInfoExplorePageEnabled}
-              data-cy="explore-tokens-search-input"
-              type="search"
-              placeholder={`${translation}`}
-              id="searchBar"
-              autoComplete="off"
-              value={localFilterString}
-              onChange={({ target: { value } }) => setLocalFilterString(value)}
-              isOpen={isOpen}
-              onFocus={isInfoExplorePageEnabled ? handleFocus : undefined}
-              onBlur={isInfoExplorePageEnabled ? handleBlur : undefined}
-            />
-          </TraceEvent>
+          <SearchInput
+            isInfoExplorePageEnabled={isInfoExplorePageEnabled}
+            data-cy="explore-tokens-search-input"
+            type="search"
+            placeholder={`${translation}`}
+            id="searchBar"
+            autoComplete="off"
+            value={localFilterString}
+            onChange={({ target: { value } }) => setLocalFilterString(value)}
+            isOpen={isOpen}
+            onFocus={isInfoExplorePageEnabled ? handleFocus : undefined}
+            onBlur={isInfoExplorePageEnabled ? handleBlur : undefined}
+          />
         )}
       >
         {isInfoExplorePageEnabled ? (tab === 'tokens' ? 'Search tokens' : 'Search pools') : 'Filter tokens'}

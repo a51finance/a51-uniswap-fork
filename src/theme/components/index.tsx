@@ -1,5 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { outboundLink } from 'components/analytics'
 import { MOBILE_MEDIA_BREAKPOINT } from 'components/Tokens/constants'
 import useCopyClipboard from 'hooks/useCopyClipboard'
 import React, {
@@ -12,13 +11,12 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { AlertTriangle, ArrowLeft, CheckCircle, Copy, Icon, X } from 'react-feather'
+import { AlertTriangle, CheckCircle, Copy, Icon, X } from 'react-feather'
 import { Link } from 'react-router-dom'
 import styled, { css, keyframes } from 'styled-components'
 import { Z_INDEX } from 'theme/zIndex'
 
 import { ReactComponent as TooltipTriangle } from '../../assets/svg/tooltip_triangle.svg'
-import { anonymizeLink } from '../../utils/anonymizeLink'
 
 // TODO: Break this file into a components folder
 
@@ -118,43 +116,7 @@ const CopyIcon = styled(Copy)`
   stroke: ${({ theme }) => theme.accent1};
 `
 
-const rotateImg = keyframes`
-  0% {
-    transform: perspective(1000px) rotateY(0deg);
-  }
-
-  100% {
-    transform: perspective(1000px) rotateY(360deg);
-  }
-`
-
-export const UniTokenAnimated = styled.img`
-  animation: ${rotateImg} 5s cubic-bezier(0.83, 0, 0.17, 1) infinite;
-  padding: 2rem 0 0 0;
-  filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.15));
-`
-
-function handleClickExternalLink(event: React.MouseEvent<HTMLAnchorElement>) {
-  const { target, href } = event.currentTarget
-
-  const anonymizedHref = anonymizeLink(href)
-
-  // don't prevent default, don't redirect if it's a new tab
-  if (target === '_blank' || event.ctrlKey || event.metaKey) {
-    outboundLink({ label: anonymizedHref })
-  } else {
-    event.preventDefault()
-    // send a ReactGA event and then trigger a location change
-    outboundLink({ label: anonymizedHref })
-  }
-}
-
 const StyledLink = styled.a`
-  ${ClickableStyle}
-  ${LinkStyle}
-`
-
-export const StyledRouterLink = styled(Link)`
   ${ClickableStyle}
   ${LinkStyle}
 `
@@ -168,7 +130,7 @@ export function ExternalLink({
   rel = 'noopener noreferrer',
   ...rest
 }: Omit<HTMLProps<HTMLAnchorElement>, 'as' | 'ref' | 'onClick'> & { href: string }) {
-  return <StyledLink target={target} rel={rel} href={href} onClick={handleClickExternalLink} {...rest} />
+  return <StyledLink target={target} rel={rel} href={href} {...rest} />
 }
 
 const TOOLTIP_WIDTH = 60
@@ -409,56 +371,14 @@ const SpinnerCss = css`
   animation: 2s ${rotate} linear infinite;
 `
 
-const Spinner = styled.img`
-  ${SpinnerCss}
-  width: 16px;
-  height: 16px;
-`
 export const SpinnerSVG = styled.svg`
   ${SpinnerCss}
-`
-
-const BackArrowIcon = styled(ArrowLeft)`
-  color: ${({ theme }) => theme.neutral1};
-`
-
-export function BackArrowLink({ to }: { to: string }) {
-  return (
-    <StyledInternalLink to={to}>
-      <BackArrowIcon />
-    </StyledInternalLink>
-  )
-}
-
-export const CustomLightSpinner = styled(Spinner)<{ size: string }>`
-  height: ${({ size }) => size};
-  width: ${({ size }) => size};
 `
 
 export const HideSmall = styled.span`
   ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
     display: none;
   `};
-`
-
-export const HideExtraSmall = styled.span`
-  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToExtraSmall`
-    display: none;
-  `};
-`
-
-export const SmallOnly = styled.span`
-  display: none;
-  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
-    display: block;
-  `};
-`
-
-export const MediumOnly = styled.span`
-  display: none;
-  @media (max-width: ${({ theme }) => theme.breakpoint.md}px) {
-    display: block;
-  }
 `
 
 export const Separator = styled.div`

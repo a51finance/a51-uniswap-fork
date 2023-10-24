@@ -1,14 +1,12 @@
 import { arrayify } from '@ethersproject/bytes'
 import { parseBytes32String } from '@ethersproject/strings'
-import { InterfaceEventName } from '@uniswap/analytics-events'
 import { ChainId, Currency, Token } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
-import { sendAnalyticsEvent } from 'analytics'
 import { asSupportedChain, isSupportedChain } from 'constants/chains'
 import { useBytes32TokenContract, useTokenContract } from 'hooks/useContract'
 import { NEVER_RELOAD, useSingleCallResult } from 'lib/hooks/multicall'
 import useNativeCurrency from 'lib/hooks/useNativeCurrency'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import { DEFAULT_ERC20_DECIMALS } from '../../constants/tokens'
 import { TOKEN_SHORTHANDS } from '../../constants/tokens'
@@ -84,15 +82,6 @@ export function useTokenFromMapOrNetwork(tokens: TokenMap, tokenAddress?: string
   const address = isAddress(tokenAddress)
   const token: Token | undefined = address ? tokens[address] : undefined
   const tokenFromNetwork = useTokenFromActiveNetwork(token ? undefined : address ? address : undefined)
-
-  useEffect(() => {
-    if (tokenFromNetwork) {
-      sendAnalyticsEvent(InterfaceEventName.WALLET_PROVIDER_USED, {
-        source: 'useTokenFromActiveNetwork',
-        token: tokenFromNetwork,
-      })
-    }
-  }, [tokenFromNetwork])
 
   return tokenFromNetwork ?? token
 }

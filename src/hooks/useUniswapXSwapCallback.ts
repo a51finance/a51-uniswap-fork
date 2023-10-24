@@ -1,12 +1,8 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import * as Sentry from '@sentry/react'
-import { SwapEventName } from '@uniswap/analytics-events'
 import { Percent } from '@uniswap/sdk-core'
 import { DutchOrder, DutchOrderBuilder } from '@uniswap/uniswapx-sdk'
 import { useWeb3React } from '@web3-react/core'
-import { sendAnalyticsEvent, useTrace } from 'analytics'
-import { useCachedPortfolioBalancesQuery } from 'components/PrefetchBalancesWrapper/PrefetchBalancesWrapper'
-import { formatSwapSignedAnalyticsEventProperties } from 'lib/utils/analytics'
 import { useCallback } from 'react'
 import { DutchOrderTrade, TradeFillType } from 'state/routing/types'
 import { trace } from 'tracing/trace'
@@ -47,18 +43,12 @@ async function getUpdatedNonce(swapper: string, chainId: number): Promise<BigNum
 
 export function useUniswapXSwapCallback({
   trade,
-  allowedSlippage,
-  fiatValues,
 }: {
   trade?: DutchOrderTrade
   fiatValues: { amountIn?: number; amountOut?: number; feeUsd?: number }
   allowedSlippage: Percent
 }) {
   const { account, provider } = useWeb3React()
-  const analyticsContext = useTrace()
-
-  const { data } = useCachedPortfolioBalancesQuery({ account })
-  const portfolioBalanceUsd = data?.portfolios?.[0]?.tokensTotalDenominatedValue?.value
 
   return useCallback(
     async () =>
@@ -110,19 +100,7 @@ export function useUniswapXSwapCallback({
           }
         }
 
-        const beforeSign = Date.now()
         const { signature, updatedOrder } = await signDutchOrder()
-
-        sendAnalyticsEvent(SwapEventName.SWAP_SIGNED, {
-          ...formatSwapSignedAnalyticsEventProperties({
-            trade,
-            allowedSlippage,
-            fiatValues,
-            timeToSignSinceRequestMs: Date.now() - beforeSign,
-            portfolioBalanceUsd,
-          }),
-          ...analyticsContext,
-        })
 
         const res = await fetch(`${UNISWAP_API_URL}/order`, {
           method: 'POST',
@@ -139,17 +117,6 @@ export function useUniswapXSwapCallback({
         // TODO(UniswapX): For now, `errorCode` is not always present in the response, so we have to fallback
         // check for status code and perform this type narrowing.
         if (isErrorResponse(res, body)) {
-          sendAnalyticsEvent('UniswapX Order Post Error', {
-            ...formatSwapSignedAnalyticsEventProperties({
-              trade,
-              allowedSlippage,
-              fiatValues,
-              portfolioBalanceUsd,
-            }),
-            ...analyticsContext,
-            errorCode: body.errorCode,
-            detail: body.detail,
-          })
           // TODO(UniswapX): Provide a similar utility to `swapErrorToUserReadableMessage` once
           // backend team provides a list of error codes and potential messages
           throw new Error(`${body.errorCode ?? body.detail ?? 'Unknown error'}`)
@@ -160,6 +127,6 @@ export function useUniswapXSwapCallback({
           response: { orderHash: body.hash, deadline: updatedOrder.info.deadline },
         }
       }),
-    [account, provider, trade, allowedSlippage, fiatValues, analyticsContext, portfolioBalanceUsd]
+    [account, provider, trade]
   )
 }

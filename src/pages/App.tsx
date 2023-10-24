@@ -1,5 +1,3 @@
-import { useWeb3React } from '@web3-react/core'
-import { Trace } from 'analytics'
 import ErrorBoundary from 'components/ErrorBoundary'
 import Loader from 'components/Icons/LoadingSpinner'
 import NavBar from 'components/NavBar'
@@ -14,7 +12,6 @@ import DarkModeQueryParamReader from 'theme/components/DarkModeQueryParamReader'
 import { flexRowNoWrap } from 'theme/styles'
 import { Z_INDEX } from 'theme/zIndex'
 import { getDownloadAppLink } from 'utils/openDownloadApp'
-import { getCurrentPageFromLocation } from 'utils/urlRoutes'
 
 import { MixPanelTrackEvent } from './mixpanel'
 import { RouteDefinition, routes, useRouterConfig } from './RouteDefinitions'
@@ -36,27 +33,6 @@ const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
     min-height: calc(100vh - ${({ bannerIsVisible }) => (bannerIsVisible ? UK_BANNER_HEIGHT_SM : 0)}px);
-  }
-`
-
-const MobileBottomBar = styled.div`
-  z-index: ${Z_INDEX.sticky};
-  position: fixed;
-  display: flex;
-  bottom: 0;
-  right: 0;
-  left: 0;
-  width: calc(100vw - 16px);
-  justify-content: space-between;
-  padding: 0px 4px;
-  height: ${({ theme }) => theme.mobileBottomBarHeight}px;
-  background: ${({ theme }) => theme.surface1};
-  border: 1px solid ${({ theme }) => theme.surface3};
-  margin: 8px;
-  border-radius: 20px;
-
-  @media screen and (min-width: ${({ theme }) => theme.breakpoint.md}px) {
-    display: none;
   }
 `
 
@@ -85,7 +61,6 @@ export default function App() {
 
   const location = useLocation()
   const { pathname } = location
-  const currentPage = getCurrentPageFromLocation(pathname)
 
   const [scrollY, setScrollY] = useState(0)
   const scrolledState = scrollY > 0
@@ -127,8 +102,6 @@ export default function App() {
 
   const isHeaderTransparent = !scrolledState
 
-  const { account } = useWeb3React()
-
   // redirect address to landing pages until implemented
   const shouldRedirectToAppInstall = pathname?.startsWith('/address/')
   useLayoutEffect(() => {
@@ -150,37 +123,35 @@ export default function App() {
   return (
     <ErrorBoundary>
       <DarkModeQueryParamReader />
-      <Trace page={currentPage}>
-        {renderBanner && <UkBanner />}
-        <HeaderWrapper transparent={isHeaderTransparent} bannerIsVisible={renderBanner} scrollY={scrollY}>
-          <NavBar blur={isHeaderTransparent} />
-        </HeaderWrapper>
-        <BodyWrapper bannerIsVisible={renderBanner}>
-          <Suspense>
-            <AppChrome />
-          </Suspense>
-          <Suspense fallback={<Loader />}>
-            {isLoaded ? (
-              <Routes>
-                {routes.map((route: RouteDefinition) =>
-                  route.enabled(routerConfig) ? (
-                    <Route key={route.path} path={route.path} element={route.getElement(routerConfig)}>
-                      {route.nestedPaths.map((nestedPath) => (
-                        <Route path={nestedPath} key={`${route.path}/${nestedPath}`} />
-                      ))}
-                    </Route>
-                  ) : null
-                )}
-              </Routes>
-            ) : (
-              <Loader />
-            )}
-          </Suspense>
-        </BodyWrapper>
-        {/* <MobileBottomBar>
+      {renderBanner && <UkBanner />}
+      <HeaderWrapper transparent={isHeaderTransparent} bannerIsVisible={renderBanner} scrollY={scrollY}>
+        <NavBar blur={isHeaderTransparent} />
+      </HeaderWrapper>
+      <BodyWrapper bannerIsVisible={renderBanner}>
+        <Suspense>
+          <AppChrome />
+        </Suspense>
+        <Suspense fallback={<Loader />}>
+          {isLoaded ? (
+            <Routes>
+              {routes.map((route: RouteDefinition) =>
+                route.enabled(routerConfig) ? (
+                  <Route key={route.path} path={route.path} element={route.getElement(routerConfig)}>
+                    {route.nestedPaths.map((nestedPath) => (
+                      <Route path={nestedPath} key={`${route.path}/${nestedPath}`} />
+                    ))}
+                  </Route>
+                ) : null
+              )}
+            </Routes>
+          ) : (
+            <Loader />
+          )}
+        </Suspense>
+      </BodyWrapper>
+      {/* <MobileBottomBar>
           <PageTabs />
         </MobileBottomBar> */}
-      </Trace>
     </ErrorBoundary>
   )
 }

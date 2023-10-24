@@ -1,5 +1,4 @@
-import { InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events'
-import { sendAnalyticsEvent } from 'analytics'
+import { InterfaceElementName } from '@uniswap/analytics-events'
 import { isIOS } from 'utils/userAgent'
 
 const APP_STORE_LINK = 'https://apps.apple.com/app/apple-store/id6443944476'
@@ -47,12 +46,10 @@ type AnalyticsLinkOptions = {
 }
 
 const openAppStore = (options?: AnalyticsLinkOptions) => {
-  sendAnalyticsEvent(InterfaceEventName.UNISWAP_WALLET_APP_DOWNLOAD_OPENED, { element: options?.element })
   window.open(linkWithParams(APP_STORE_LINK, options?.urlParamString), /* target = */ 'uniswap_wallet_appstore')
 }
 
-export const openWalletMicrosite = (options?: AnalyticsLinkOptions) => {
-  sendAnalyticsEvent(InterfaceEventName.UNISWAP_WALLET_MICROSITE_OPENED, { element: options?.element })
+const openWalletMicrosite = (options?: AnalyticsLinkOptions) => {
   window.open(linkWithParams(MICROSITE_LINK, options?.urlParamString), /* target = */ 'uniswap_wallet_microsite')
 }
 

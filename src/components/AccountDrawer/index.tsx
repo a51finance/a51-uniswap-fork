@@ -1,5 +1,3 @@
-import { BrowserEvent, InterfaceEventName } from '@uniswap/analytics-events'
-import { TraceEvent } from 'analytics'
 import { ScrollBarStyles } from 'components/Common'
 import useDisableScrolling from 'hooks/useDisableScrolling'
 import usePrevious from 'hooks/usePrevious'
@@ -243,15 +241,9 @@ function AccountDrawer() {
   return (
     <Container>
       {walletDrawerOpen && (
-        <TraceEvent
-          events={[BrowserEvent.onClick]}
-          name={InterfaceEventName.MINI_PORTFOLIO_TOGGLED}
-          properties={{ type: 'close' }}
-        >
-          <CloseDrawer onClick={toggleWalletDrawer} data-testid="close-account-drawer">
-            <CloseIcon />
-          </CloseDrawer>
-        </TraceEvent>
+        <CloseDrawer onClick={toggleWalletDrawer} data-testid="close-account-drawer">
+          <CloseIcon />
+        </CloseDrawer>
       )}
       <Scrim onClick={toggleWalletDrawer} $open={walletDrawerOpen} />
       <AccountDrawerWrapper

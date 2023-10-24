@@ -1,7 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { InterfacePageName } from '@uniswap/analytics-events'
 import { useWeb3React } from '@web3-react/core'
-import { Trace } from 'analytics'
 import { PortfolioLogo } from 'components/AccountDrawer/MiniPortfolio/PortfolioLogo'
 import { AboutSection } from 'components/Tokens/TokenDetails/About'
 import AddressSection from 'components/Tokens/TokenDetails/AddressSection'
@@ -211,79 +209,73 @@ export default function TokenDetails({
     return <InvalidTokenDetails pageChainId={pageChainId} isInvalidAddress={!address} />
   }
   return (
-    <Trace
-      page={InterfacePageName.TOKEN_DETAILS_PAGE}
-      properties={{ tokenAddress: address, tokenName: detailedToken?.name }}
-      shouldLogImpression
-    >
-      <TokenDetailsLayout>
-        {detailedToken && !isPending ? (
-          <LeftPanel>
-            <BreadcrumbNavLink to={`${isInfoExplorePageEnabled ? '/explore' : ''}/tokens/${chain.toLowerCase()}`}>
-              <ArrowLeft data-testid="token-details-return-button" size={14} /> Tokens
-            </BreadcrumbNavLink>
-            <TokenInfoContainer data-testid="token-info-container">
-              <TokenNameCell>
-                <PortfolioLogo currencies={[detailedToken]} chainId={detailedToken.chainId} size="32px" />
-                <TokenTitle>
-                  {detailedToken.name ?? <Trans>Name not found</Trans>}
-                  <TokenSymbol>{detailedToken.symbol ?? <Trans>Symbol not found</Trans>}</TokenSymbol>
-                </TokenTitle>
-              </TokenNameCell>
-              <TokenActions>
-                <ShareButton currency={detailedToken} />
-              </TokenActions>
-            </TokenInfoContainer>
-            <ChartSection tokenPriceQuery={tokenPriceQuery} onChangeTimePeriod={onChangeTimePeriod} />
+    <TokenDetailsLayout>
+      {detailedToken && !isPending ? (
+        <LeftPanel>
+          <BreadcrumbNavLink to={`${isInfoExplorePageEnabled ? '/explore' : ''}/tokens/${chain.toLowerCase()}`}>
+            <ArrowLeft data-testid="token-details-return-button" size={14} /> Tokens
+          </BreadcrumbNavLink>
+          <TokenInfoContainer data-testid="token-info-container">
+            <TokenNameCell>
+              <PortfolioLogo currencies={[detailedToken]} chainId={detailedToken.chainId} size="32px" />
+              <TokenTitle>
+                {detailedToken.name ?? <Trans>Name not found</Trans>}
+                <TokenSymbol>{detailedToken.symbol ?? <Trans>Symbol not found</Trans>}</TokenSymbol>
+              </TokenTitle>
+            </TokenNameCell>
+            <TokenActions>
+              <ShareButton currency={detailedToken} />
+            </TokenActions>
+          </TokenInfoContainer>
+          <ChartSection tokenPriceQuery={tokenPriceQuery} onChangeTimePeriod={onChangeTimePeriod} />
 
-            <StatsSection
-              chainId={pageChainId}
-              address={address}
-              TVL={tokenQueryData?.market?.totalValueLocked?.value}
-              volume24H={tokenQueryData?.market?.volume24H?.value}
-              priceHigh52W={tokenQueryData?.market?.priceHigh52W?.value}
-              priceLow52W={tokenQueryData?.market?.priceLow52W?.value}
-            />
-            <Hr />
-            <AboutSection
-              address={address}
-              chainId={pageChainId}
-              description={tokenQueryData?.project?.description}
-              homepageUrl={tokenQueryData?.project?.homepageUrl}
-              twitterName={tokenQueryData?.project?.twitterName}
-            />
-            {!detailedToken.isNative && <AddressSection address={address} />}
-          </LeftPanel>
-        ) : (
-          <TokenDetailsSkeleton />
-        )}
+          <StatsSection
+            chainId={pageChainId}
+            address={address}
+            TVL={tokenQueryData?.market?.totalValueLocked?.value}
+            volume24H={tokenQueryData?.market?.volume24H?.value}
+            priceHigh52W={tokenQueryData?.market?.priceHigh52W?.value}
+            priceLow52W={tokenQueryData?.market?.priceLow52W?.value}
+          />
+          <Hr />
+          <AboutSection
+            address={address}
+            chainId={pageChainId}
+            description={tokenQueryData?.project?.description}
+            homepageUrl={tokenQueryData?.project?.homepageUrl}
+            twitterName={tokenQueryData?.project?.twitterName}
+          />
+          {!detailedToken.isNative && <AddressSection address={address} />}
+        </LeftPanel>
+      ) : (
+        <TokenDetailsSkeleton />
+      )}
 
-        <RightPanel onClick={() => isBlockedToken && setOpenTokenSafetyModal(true)}>
-          <div style={{ pointerEvents: isBlockedToken ? 'none' : 'auto' }}>
-            <Swap
-              chainId={pageChainId}
-              initialInputCurrencyId={inputTokenAddress}
-              initialOutputCurrencyId={address === NATIVE_CHAIN_ID ? 'ETH' : address}
-              onCurrencyChange={handleCurrencyChange}
-              disableTokenInputs={pageChainId !== connectedChainId}
-            />
-          </div>
-          {tokenWarning && <TokenSafetyMessage tokenAddress={address} warning={tokenWarning} />}
-          {!isInfoTDPEnabled && detailedToken && <BalanceSummary token={detailedToken} />}
-        </RightPanel>
-        {!isInfoTDPEnabled && detailedToken && <MobileBalanceSummaryFooter token={detailedToken} />}
+      <RightPanel onClick={() => isBlockedToken && setOpenTokenSafetyModal(true)}>
+        <div style={{ pointerEvents: isBlockedToken ? 'none' : 'auto' }}>
+          <Swap
+            chainId={pageChainId}
+            initialInputCurrencyId={inputTokenAddress}
+            initialOutputCurrencyId={address === NATIVE_CHAIN_ID ? 'ETH' : address}
+            onCurrencyChange={handleCurrencyChange}
+            disableTokenInputs={pageChainId !== connectedChainId}
+          />
+        </div>
+        {tokenWarning && <TokenSafetyMessage tokenAddress={address} warning={tokenWarning} />}
+        {!isInfoTDPEnabled && detailedToken && <BalanceSummary token={detailedToken} />}
+      </RightPanel>
+      {!isInfoTDPEnabled && detailedToken && <MobileBalanceSummaryFooter token={detailedToken} />}
 
-        <TokenSafetyModal
-          isOpen={openTokenSafetyModal || !!continueSwap}
-          tokenAddress={address}
-          onContinue={() => onResolveSwap(true)}
-          onBlocked={() => {
-            setOpenTokenSafetyModal(false)
-          }}
-          onCancel={() => onResolveSwap(false)}
-          showCancel={true}
-        />
-      </TokenDetailsLayout>
-    </Trace>
+      <TokenSafetyModal
+        isOpen={openTokenSafetyModal || !!continueSwap}
+        tokenAddress={address}
+        onContinue={() => onResolveSwap(true)}
+        onBlocked={() => {
+          setOpenTokenSafetyModal(false)
+        }}
+        onCancel={() => onResolveSwap(false)}
+        showCancel={true}
+      />
+    </TokenDetailsLayout>
   )
 }

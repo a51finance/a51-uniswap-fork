@@ -1,7 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { BrowserEvent, InterfaceElementName, InterfacePageName, SharedEventName } from '@uniswap/analytics-events'
-import { TraceEvent } from 'analytics'
-import { Trace } from 'analytics'
+import { InterfaceElementName } from '@uniswap/analytics-events'
 import { AutoRow } from 'components/Row'
 import { MAX_WIDTH_MEDIA_BREAKPOINT, MEDIUM_MEDIA_BREAKPOINT } from 'components/Tokens/constants'
 import { filterStringAtom } from 'components/Tokens/state'
@@ -174,72 +172,60 @@ const Explore = ({ initialTab }: { initialTab?: ExploreTab }) => {
   const { component: Page, key: currentKey } = Pages[currentTab]
 
   return (
-    <Trace
-      page={isInfoExplorePageEnabled ? InterfacePageName.EXPLORE_PAGE : InterfacePageName.TOKENS_PAGE}
-      shouldLogImpression
-    >
-      <ExploreContainer>
-        {/* TODO(WEB-2749 & WEB-2750): add graphs to explore page */}
-        {!isInfoExplorePageEnabled && (
-          <TitleContainer>
-            <MouseoverTooltip
-              text={<Trans>This table contains the top tokens by Uniswap volume, sorted based on your input.</Trans>}
-              placement="bottom"
-            >
-              <ThemedText.LargeHeader>
-                <Trans>Top tokens on Uniswap</Trans>
-              </ThemedText.LargeHeader>
-            </MouseoverTooltip>
-          </TitleContainer>
+    <ExploreContainer>
+      {/* TODO(WEB-2749 & WEB-2750): add graphs to explore page */}
+      {!isInfoExplorePageEnabled && (
+        <TitleContainer>
+          <MouseoverTooltip
+            text={<Trans>This table contains the top tokens by Uniswap volume, sorted based on your input.</Trans>}
+            placement="bottom"
+          >
+            <ThemedText.LargeHeader>
+              <Trans>Top tokens on Uniswap</Trans>
+            </ThemedText.LargeHeader>
+          </MouseoverTooltip>
+        </TitleContainer>
+      )}
+      <NavWrapper isInfoExplorePageEnabled={isInfoExplorePageEnabled}>
+        {isInfoExplorePageEnabled && (
+          <TabBar data-testid="explore-navbar">
+            {Pages.map(({ title, key }, index) => {
+              const handleNavItemClick = () => {
+                setCurrentTab(index)
+                navigate(`/explore/${key}`)
+              }
+              return (
+                <TabItem onClick={handleNavItemClick} active={currentTab === index} key={key}>
+                  {title}
+                </TabItem>
+              )
+            })}
+          </TabBar>
         )}
-        <NavWrapper isInfoExplorePageEnabled={isInfoExplorePageEnabled}>
-          {isInfoExplorePageEnabled && (
-            <TabBar data-testid="explore-navbar">
-              {Pages.map(({ title, loggingElementName, key }, index) => {
-                const handleNavItemClick = () => {
-                  setCurrentTab(index)
-                  navigate(`/explore/${key}`)
-                }
-                return (
-                  <TraceEvent
-                    events={[BrowserEvent.onClick]}
-                    name={SharedEventName.NAVBAR_CLICKED}
-                    element={loggingElementName}
-                    key={index}
-                  >
-                    <TabItem onClick={handleNavItemClick} active={currentTab === index} key={key}>
-                      {title}
-                    </TabItem>
-                  </TraceEvent>
-                )
-              })}
-            </TabBar>
-          )}
-          {isInfoExplorePageEnabled ? (
-            <FiltersContainer isInfoExplorePageEnabled>
-              <DropdownFilterContainer isInfoExplorePageEnabled>
-                <NetworkFilter />
-                {currentKey === ExploreTab.Tokens && <TimeSelector />}
-              </DropdownFilterContainer>
-              <SearchContainer isInfoExplorePageEnabled>
-                {currentKey !== ExploreTab.Transactions && <SearchBar tab={currentKey} />}
-              </SearchContainer>
+        {isInfoExplorePageEnabled ? (
+          <FiltersContainer isInfoExplorePageEnabled>
+            <DropdownFilterContainer isInfoExplorePageEnabled>
+              <NetworkFilter />
+              {currentKey === ExploreTab.Tokens && <TimeSelector />}
+            </DropdownFilterContainer>
+            <SearchContainer isInfoExplorePageEnabled>
+              {currentKey !== ExploreTab.Transactions && <SearchBar tab={currentKey} />}
+            </SearchContainer>
+          </FiltersContainer>
+        ) : (
+          <>
+            <FiltersContainer isInfoExplorePageEnabled={false}>
+              <NetworkFilter />
+              <TimeSelector />
             </FiltersContainer>
-          ) : (
-            <>
-              <FiltersContainer isInfoExplorePageEnabled={false}>
-                <NetworkFilter />
-                <TimeSelector />
-              </FiltersContainer>
-              <SearchContainer isInfoExplorePageEnabled={false}>
-                <SearchBar />
-              </SearchContainer>
-            </>
-          )}
-        </NavWrapper>
-        {isInfoExplorePageEnabled ? <Page /> : <TokenTable />}
-      </ExploreContainer>
-    </Trace>
+            <SearchContainer isInfoExplorePageEnabled={false}>
+              <SearchBar />
+            </SearchContainer>
+          </>
+        )}
+      </NavWrapper>
+      {isInfoExplorePageEnabled ? <Page /> : <TokenTable />}
+    </ExploreContainer>
   )
 }
 
