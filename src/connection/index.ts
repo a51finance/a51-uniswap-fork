@@ -6,7 +6,7 @@ import { MetaMask } from '@web3-react/metamask'
 import { Network } from '@web3-react/network'
 import { Actions, Connector } from '@web3-react/types'
 import GNOSIS_ICON from 'assets/images/gnosis.png'
-import UNISWAP_LOGO from 'assets/svg/logo.svg'
+import DEX51_LOGO from 'assets/svg/logo.svg'
 import COINBASE_ICON from 'assets/wallets/coinbase-icon.svg'
 import WALLET_CONNECT_ICON from 'assets/wallets/walletconnect-icon.svg'
 import { useSyncExternalStore } from 'react'
@@ -145,8 +145,8 @@ const [web3CoinbaseWallet, web3CoinbaseWalletHooks] = initializeConnector<Coinba
       actions,
       options: {
         url: RPC_URLS[ChainId.MAINNET][0],
-        appName: 'Uniswap',
-        appLogoUrl: UNISWAP_LOGO,
+        appName: 'DEX51',
+        appLogoUrl: DEX51_LOGO,
         reloadOnDisconnect: false,
       },
       onError,

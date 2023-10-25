@@ -1,11 +1,8 @@
 import { Trans } from '@lingui/macro'
-import { BrowserEvent, InterfaceElementName, InterfaceSectionName, SharedEventName } from '@uniswap/analytics-events'
-import { Trace, TraceEvent } from 'analytics'
+import { InterfaceElementName } from '@uniswap/analytics-events'
 import Column from 'components/Column'
 import { LoaderV2 } from 'components/Icons/LoadingSpinner'
 import { AutoRow } from 'components/Row'
-import { useDisableNFTRoutes } from 'hooks/useDisableNFTRoutes'
-import { useIsNftPage } from 'hooks/useIsNftPage'
 import { useEffect, useState } from 'react'
 import styled, { useTheme } from 'styled-components'
 import { BREAKPOINTS } from 'theme'
@@ -82,10 +79,8 @@ const Pages: Array<Page> = [
 ]
 
 export default function MiniPortfolio({ account }: { account: string }) {
-  const isNftPage = useIsNftPage()
   const theme = useTheme()
-  const [currentPage, setCurrentPage] = useState(isNftPage ? 1 : 0)
-  const shouldDisableNFTRoutes = useDisableNFTRoutes()
+  const [currentPage, setCurrentPage] = useState(0)
   const [activityUnread, setActivityUnread] = useState(false)
 
   const { component: Page, key: currentKey } = Pages[currentPage]
@@ -97,47 +92,37 @@ export default function MiniPortfolio({ account }: { account: string }) {
   }, [currentKey, hasPendingActivity])
 
   return (
-    <Trace section={InterfaceSectionName.MINI_PORTFOLIO}>
-      <Wrapper>
-        <Nav data-testid="mini-portfolio-navbar">
-          {Pages.map(({ title, loggingElementName, key }, index) => {
-            if (shouldDisableNFTRoutes && loggingElementName.includes('nft')) return null
-            const isUnselectedActivity = key === 'activity' && currentKey !== 'activity'
-            const showActivityIndicator = isUnselectedActivity && (hasPendingActivity || activityUnread)
-            const handleNavItemClick = () => {
-              setCurrentPage(index)
-              if (key === 'activity') setActivityUnread(false)
-            }
-            return (
-              <TraceEvent
-                events={[BrowserEvent.onClick]}
-                name={SharedEventName.NAVBAR_CLICKED}
-                element={loggingElementName}
-                key={index}
-              >
-                <NavItem onClick={handleNavItemClick} active={currentPage === index} key={key}>
-                  <span>{title}</span>
-                  {showActivityIndicator && (
-                    <>
-                      &nbsp;
-                      {hasPendingActivity ? (
-                        <LoaderV2 />
-                      ) : (
-                        <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <circle cx="4" cy="4" r="4" fill={theme.accent1} />
-                        </svg>
-                      )}
-                    </>
+    <Wrapper>
+      <Nav data-testid="mini-portfolio-navbar">
+        {Pages.map(({ title, key }, index) => {
+          const isUnselectedActivity = key === 'activity' && currentKey !== 'activity'
+          const showActivityIndicator = isUnselectedActivity && (hasPendingActivity || activityUnread)
+          const handleNavItemClick = () => {
+            setCurrentPage(index)
+            if (key === 'activity') setActivityUnread(false)
+          }
+          return (
+            <NavItem onClick={handleNavItemClick} active={currentPage === index} key={key}>
+              <span>{title}</span>
+              {showActivityIndicator && (
+                <>
+                  &nbsp;
+                  {hasPendingActivity ? (
+                    <LoaderV2 />
+                  ) : (
+                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="4" cy="4" r="4" fill={theme.accent1} />
+                    </svg>
                   )}
-                </NavItem>
-              </TraceEvent>
-            )
-          })}
-        </Nav>
-        <PageWrapper data-testid="mini-portfolio-page">
-          <Page account={account} />
-        </PageWrapper>
-      </Wrapper>
-    </Trace>
+                </>
+              )}
+            </NavItem>
+          )
+        })}
+      </Nav>
+      <PageWrapper data-testid="mini-portfolio-page">
+        <Page account={account} />
+      </PageWrapper>
+    </Wrapper>
   )
 }

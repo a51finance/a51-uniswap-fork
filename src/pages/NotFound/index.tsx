@@ -1,6 +1,4 @@
 import { Trans } from '@lingui/macro'
-import { InterfacePageName } from '@uniswap/analytics-events'
-import { Trace } from 'analytics'
 import { SmallButtonPrimary } from 'components/Button'
 import { useIsMobile } from 'nft/hooks'
 import { Link } from 'react-router-dom'
@@ -47,20 +45,18 @@ export default function NotFound() {
 
   return (
     <PageWrapper>
-      <Trace page={InterfacePageName.NOT_FOUND} shouldLogImpression>
-        <Header>
-          <Container>
-            <Title>404</Title>
-            <Paragraph color="neutral2">
-              <Trans>Page not found!</Trans>
-            </Paragraph>
-          </Container>
-          <Image src={isDarkMode ? darkImage : lightImage} alt="Liluni" />
-        </Header>
-        <SmallButtonPrimary as={Link} to="/">
-          <Trans>Oops, take me back to Swap</Trans>
-        </SmallButtonPrimary>
-      </Trace>
+      <Header>
+        <Container>
+          <Title>404</Title>
+          <Paragraph color="neutral2">
+            <Trans>Page not found!</Trans>
+          </Paragraph>
+        </Container>
+        <Image src={isDarkMode ? darkImage : lightImage} alt="Liluni" />
+      </Header>
+      <SmallButtonPrimary as={Link} to="/">
+        <Trans>Oops, take me back to Swap</Trans>
+      </SmallButtonPrimary>
     </PageWrapper>
   )
 }

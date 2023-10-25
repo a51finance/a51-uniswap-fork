@@ -1,10 +1,8 @@
-import { InterfaceEventName } from '@uniswap/analytics-events'
 import { ChainId, Percent } from '@uniswap/sdk-core'
 import { WETH_ADDRESS as getWethAddress } from '@uniswap/universal-router-sdk'
 import { useWeb3React } from '@web3-react/core'
 import FOT_DETECTOR_ABI from 'abis/fee-on-transfer-detector.json'
 import { FeeOnTransferDetector } from 'abis/types'
-import { sendAnalyticsEvent } from 'analytics'
 import { BIPS_BASE, ZERO_PERCENT } from 'constants/misc'
 import { useEffect, useState } from 'react'
 
@@ -13,17 +11,8 @@ import { useContract } from './useContract'
 const FEE_ON_TRANSFER_DETECTOR_ADDRESS = '0x19C97dc2a25845C7f9d1d519c8C2d4809c58b43f'
 
 function useFeeOnTransferDetectorContract(): FeeOnTransferDetector | null {
-  const { account } = useWeb3React()
   const contract = useContract<FeeOnTransferDetector>(FEE_ON_TRANSFER_DETECTOR_ADDRESS, FOT_DETECTOR_ABI)
 
-  useEffect(() => {
-    if (contract && account) {
-      sendAnalyticsEvent(InterfaceEventName.WALLET_PROVIDER_USED, {
-        source: 'useFeeOnTransferDetectorContract',
-        contract,
-      })
-    }
-  }, [account, contract])
   return contract
 }
 

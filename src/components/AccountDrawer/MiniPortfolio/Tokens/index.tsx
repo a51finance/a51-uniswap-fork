@@ -1,5 +1,3 @@
-import { BrowserEvent, InterfaceElementName, SharedEventName } from '@uniswap/analytics-events'
-import { TraceEvent } from 'analytics'
 import { useCachedPortfolioBalancesQuery } from 'components/PrefetchBalancesWrapper/PrefetchBalancesWrapper'
 import Row from 'components/Row'
 import { DeltaArrow } from 'components/Tokens/TokenDetails/Delta'
@@ -94,42 +92,35 @@ function TokenRow({ token, quantity, denominatedValue, tokenProjectMarket }: Tok
     return null
   }
   return (
-    <TraceEvent
-      events={[BrowserEvent.onClick]}
-      name={SharedEventName.ELEMENT_CLICKED}
-      element={InterfaceElementName.MINI_PORTFOLIO_TOKEN_ROW}
-      properties={{ chain_id: currency.chainId, token_name: token?.name, address: token?.address }}
-    >
-      <PortfolioRow
-        left={<PortfolioLogo chainId={currency.chainId} currencies={[currency]} size="40px" />}
-        title={<TokenNameText>{token?.name}</TokenNameText>}
-        descriptor={
-          <TokenBalanceText>
-            {formatNumber({
-              input: quantity,
-              type: NumberType.TokenNonTx,
-            })}{' '}
-            {token?.symbol}
-          </TokenBalanceText>
-        }
-        onClick={navigateToTokenDetails}
-        right={
-          denominatedValue && (
-            <>
-              <ThemedText.SubHeader>
-                {formatNumber({
-                  input: denominatedValue?.value,
-                  type: NumberType.PortfolioBalance,
-                })}
-              </ThemedText.SubHeader>
-              <Row justify="flex-end">
-                <DeltaArrow delta={percentChange} />
-                <ThemedText.BodySecondary>{formatDelta(percentChange)}</ThemedText.BodySecondary>
-              </Row>
-            </>
-          )
-        }
-      />
-    </TraceEvent>
+    <PortfolioRow
+      left={<PortfolioLogo chainId={currency.chainId} currencies={[currency]} size="40px" />}
+      title={<TokenNameText>{token?.name}</TokenNameText>}
+      descriptor={
+        <TokenBalanceText>
+          {formatNumber({
+            input: quantity,
+            type: NumberType.TokenNonTx,
+          })}{' '}
+          {token?.symbol}
+        </TokenBalanceText>
+      }
+      onClick={navigateToTokenDetails}
+      right={
+        denominatedValue && (
+          <>
+            <ThemedText.SubHeader>
+              {formatNumber({
+                input: denominatedValue?.value,
+                type: NumberType.PortfolioBalance,
+              })}
+            </ThemedText.SubHeader>
+            <Row justify="flex-end">
+              <DeltaArrow delta={percentChange} />
+              <ThemedText.BodySecondary>{formatDelta(percentChange)}</ThemedText.BodySecondary>
+            </Row>
+          </>
+        )
+      }
+    />
   )
 }

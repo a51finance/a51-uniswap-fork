@@ -5,9 +5,8 @@ import { AVERAGE_L1_BLOCK_TIME } from 'constants/chainInfo'
 import { NATIVE_CHAIN_ID, nativeOnChain, WRAPPED_NATIVE_CURRENCY } from 'constants/tokens'
 import ms from 'ms'
 import { useEffect } from 'react'
-import { getNativeTokenDBAddress } from 'utils/nativeTokens'
 
-import { Chain, ContractInput, HistoryDuration, TokenStandard } from './__generated__/types-and-hooks'
+import { Chain, HistoryDuration, TokenStandard } from './__generated__/types-and-hooks'
 
 export enum PollingInterval {
   Slow = ms(`5m`),
@@ -101,10 +100,6 @@ type GqlChainsType = (typeof GQL_CHAINS)[number]
 
 export function isGqlSupportedChain(chainId: number | undefined): chainId is GqlChainsType {
   return !!chainId && GQL_CHAINS.includes(chainId)
-}
-export function toContractInput(currency: Currency): ContractInput {
-  const chain = chainIdToBackendName(currency.chainId)
-  return { chain, address: currency.isToken ? currency.address : getNativeTokenDBAddress(chain) }
 }
 
 export function gqlToCurrency(token: {

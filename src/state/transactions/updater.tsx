@@ -1,18 +1,16 @@
 import { TransactionReceipt } from '@ethersproject/abstract-provider'
 import { useWeb3React } from '@web3-react/core'
-import { useTrace } from 'analytics'
 import { DEFAULT_TXN_DISMISS_MS, L2_TXN_DISMISS_MS } from 'constants/misc'
 import LibUpdater from 'lib/hooks/transactions/updater'
 import { useCallback, useMemo } from 'react'
 import { PopupType } from 'state/application/reducer'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
-import { logSwapSuccess } from 'tracing/swapFlowLoggers'
 
 import { L2_CHAIN_IDS } from '../../constants/chains'
 import { useAddPopup } from '../application/hooks'
 import { isPendingTx } from './hooks'
 import { checkedTransaction, finalizeTransaction } from './reducer'
-import { SerializableTransactionReceipt, TransactionDetails, TransactionType } from './types'
+import { SerializableTransactionReceipt, TransactionDetails } from './types'
 
 export function toSerializableReceipt(receipt: TransactionReceipt): SerializableTransactionReceipt {
   return {
@@ -28,7 +26,6 @@ export function toSerializableReceipt(receipt: TransactionReceipt): Serializable
 }
 
 export default function Updater() {
-  const analyticsContext = useTrace()
   const { chainId } = useWeb3React()
   const addPopup = useAddPopup()
   // speed up popup dismisall time if on L2
@@ -58,10 +55,6 @@ export default function Updater() {
         })
       )
 
-      if (pendingTransactions[hash] && pendingTransactions[hash].info?.type === TransactionType.SWAP) {
-        logSwapSuccess(hash, chainId, analyticsContext)
-      }
-
       addPopup(
         {
           type: PopupType.Transaction,
@@ -71,7 +64,7 @@ export default function Updater() {
         isL2 ? L2_TXN_DISMISS_MS : DEFAULT_TXN_DISMISS_MS
       )
     },
-    [addPopup, analyticsContext, dispatch, isL2, pendingTransactions]
+    [addPopup, dispatch, isL2]
   )
 
   return <LibUpdater pendingTransactions={pendingTransactions} onCheck={onCheck} onReceipt={onReceipt} />

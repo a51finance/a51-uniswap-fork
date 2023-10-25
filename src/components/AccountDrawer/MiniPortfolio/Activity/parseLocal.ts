@@ -10,15 +10,9 @@ import { isOnChainOrder, useAllSignatures } from 'state/signatures/hooks'
 import { SignatureDetails, SignatureType } from 'state/signatures/types'
 import { useMultichainTransactions } from 'state/transactions/hooks'
 import {
-  AddLiquidityV2PoolTransactionInfo,
-  AddLiquidityV3PoolTransactionInfo,
   ApproveTransactionInfo,
-  CollectFeesTransactionInfo,
-  CreateV3PoolTransactionInfo,
   ExactInputSwapTransactionInfo,
   ExactOutputSwapTransactionInfo,
-  MigrateV2LiquidityToV3TransactionInfo,
-  RemoveLiquidityV3TransactionInfo,
   TransactionDetails,
   TransactionType,
   WrapTransactionInfo,
@@ -121,59 +115,6 @@ function parseApproval(
   }
 }
 
-type GenericLPInfo = Omit<
-  AddLiquidityV3PoolTransactionInfo | RemoveLiquidityV3TransactionInfo | AddLiquidityV2PoolTransactionInfo,
-  'type'
->
-function parseLP(
-  lp: GenericLPInfo,
-  chainId: ChainId,
-  tokens: ChainTokenMap,
-  formatNumber: FormatNumberFunctionType
-): Partial<Activity> {
-  const baseCurrency = getCurrency(lp.baseCurrencyId, chainId, tokens)
-  const quoteCurrency = getCurrency(lp.quoteCurrencyId, chainId, tokens)
-  const [baseRaw, quoteRaw] = [lp.expectedAmountBaseRaw, lp.expectedAmountQuoteRaw]
-  const descriptor = buildCurrencyDescriptor(baseCurrency, baseRaw, quoteCurrency, quoteRaw, formatNumber, t`and`)
-
-  return { descriptor, currencies: [baseCurrency, quoteCurrency] }
-}
-
-function parseCollectFees(
-  collect: CollectFeesTransactionInfo,
-  chainId: ChainId,
-  tokens: ChainTokenMap,
-  formatNumber: FormatNumberFunctionType
-): Partial<Activity> {
-  // Adapts CollectFeesTransactionInfo to generic LP type
-  const {
-    currencyId0: baseCurrencyId,
-    currencyId1: quoteCurrencyId,
-    expectedCurrencyOwed0: expectedAmountBaseRaw,
-    expectedCurrencyOwed1: expectedAmountQuoteRaw,
-  } = collect
-  return parseLP(
-    { baseCurrencyId, quoteCurrencyId, expectedAmountBaseRaw, expectedAmountQuoteRaw },
-    chainId,
-    tokens,
-    formatNumber
-  )
-}
-
-function parseMigrateCreateV3(
-  lp: MigrateV2LiquidityToV3TransactionInfo | CreateV3PoolTransactionInfo,
-  chainId: ChainId,
-  tokens: ChainTokenMap
-): Partial<Activity> {
-  const baseCurrency = getCurrency(lp.baseCurrencyId, chainId, tokens)
-  const baseSymbol = baseCurrency?.symbol ?? t`Unknown`
-  const quoteCurrency = getCurrency(lp.quoteCurrencyId, chainId, tokens)
-  const quoteSymbol = quoteCurrency?.symbol ?? t`Unknown`
-  const descriptor = t`${baseSymbol} and ${quoteSymbol}`
-
-  return { descriptor, currencies: [baseCurrency, quoteCurrency] }
-}
-
 export function getTransactionStatus(details: TransactionDetails): TransactionStatus {
   return !details.receipt
     ? TransactionStatus.Pending
@@ -210,16 +151,6 @@ export function transactionToActivity(
       additionalFields = parseApproval(info, chainId, tokens, status)
     } else if (info.type === TransactionType.WRAP) {
       additionalFields = parseWrap(info, chainId, status, formatNumber)
-    } else if (
-      info.type === TransactionType.ADD_LIQUIDITY_V3_POOL ||
-      info.type === TransactionType.REMOVE_LIQUIDITY_V3 ||
-      info.type === TransactionType.ADD_LIQUIDITY_V2_POOL
-    ) {
-      additionalFields = parseLP(info, chainId, tokens, formatNumber)
-    } else if (info.type === TransactionType.COLLECT_FEES) {
-      additionalFields = parseCollectFees(info, chainId, tokens, formatNumber)
-    } else if (info.type === TransactionType.MIGRATE_LIQUIDITY_V3 || info.type === TransactionType.CREATE_V3_POOL) {
-      additionalFields = parseMigrateCreateV3(info, chainId, tokens)
     }
 
     const activity = { ...defaultFields, ...additionalFields }

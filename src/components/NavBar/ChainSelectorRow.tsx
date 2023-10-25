@@ -1,8 +1,6 @@
 import { Trans } from '@lingui/macro'
-import { BrowserEvent, SharedEventName } from '@uniswap/analytics-events'
 import { ChainId } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
-import { TraceEvent } from 'analytics'
 import Loader from 'components/Icons/LoadingSpinner'
 import { ChainLogo } from 'components/Logo/ChainLogo'
 import { getChainInfo } from 'constants/chainInfo'
@@ -72,31 +70,29 @@ export default function ChainSelectorRow({ disabled, targetChain, onSelectChain,
   const theme = useTheme()
 
   return (
-    <TraceEvent events={[BrowserEvent.onClick]} name={SharedEventName.ELEMENT_CLICKED} element={`${label}-selector`}>
-      <Container
-        data-testid={`${label}-selector`}
-        disabled={!!disabled}
-        onClick={() => {
-          if (!disabled) onSelectChain(targetChain)
-        }}
-      >
-        <ChainLogo chainId={targetChain} size={LOGO_SIZE} style={{ marginRight: '12px' }} />
-        {label && <Label>{label}</Label>}
-        {disabled && (
-          <CaptionText>
-            <Trans>Unsupported by your wallet</Trans>
-          </CaptionText>
-        )}
-        {isPending && (
-          <CaptionText>
-            <Trans>Approve in wallet</Trans>
-          </CaptionText>
-        )}
-        <Status>
-          {active && <CheckMarkIcon width={LOGO_SIZE} height={LOGO_SIZE} color={theme.accent1} />}
-          {!active && isPending && <Loader width={LOGO_SIZE} height={LOGO_SIZE} />}
-        </Status>
-      </Container>
-    </TraceEvent>
+    <Container
+      data-testid={`${label}-selector`}
+      disabled={!!disabled}
+      onClick={() => {
+        if (!disabled) onSelectChain(targetChain)
+      }}
+    >
+      <ChainLogo chainId={targetChain} size={LOGO_SIZE} style={{ marginRight: '12px' }} />
+      {label && <Label>{label}</Label>}
+      {disabled && (
+        <CaptionText>
+          <Trans>Unsupported by your wallet</Trans>
+        </CaptionText>
+      )}
+      {isPending && (
+        <CaptionText>
+          <Trans>Approve in wallet</Trans>
+        </CaptionText>
+      )}
+      <Status>
+        {active && <CheckMarkIcon width={LOGO_SIZE} height={LOGO_SIZE} color={theme.accent1} />}
+        {!active && isPending && <Loader width={LOGO_SIZE} height={LOGO_SIZE} />}
+      </Status>
+    </Container>
   )
 }

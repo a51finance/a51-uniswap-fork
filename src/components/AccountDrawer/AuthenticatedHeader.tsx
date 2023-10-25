@@ -1,6 +1,4 @@
-import { BrowserEvent, InterfaceElementName, SharedEventName } from '@uniswap/analytics-events'
 import { useWeb3React } from '@web3-react/core'
-import { TraceEvent } from 'analytics'
 import Column from 'components/Column'
 import { Power } from 'components/Icons/Power'
 import { Settings } from 'components/Icons/Settings'
@@ -132,20 +130,14 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
             onClick={openSettings}
             Icon={Settings}
           />
-          <TraceEvent
-            events={[BrowserEvent.onClick]}
-            name={SharedEventName.ELEMENT_CLICKED}
-            element={InterfaceElementName.DISCONNECT_WALLET_BUTTON}
-          >
-            <IconWithConfirmTextButton
-              data-testid="wallet-disconnect"
-              onConfirm={disconnect}
-              onShowConfirm={setShowDisconnectConfirm}
-              Icon={Power}
-              text="Disconnect"
-              dismissOnHoverOut
-            />
-          </TraceEvent>
+          <IconWithConfirmTextButton
+            data-testid="wallet-disconnect"
+            onConfirm={disconnect}
+            onShowConfirm={setShowDisconnectConfirm}
+            Icon={Power}
+            text="Disconnect"
+            dismissOnHoverOut
+          />
         </IconContainer>
       </HeaderWrapper>
       <PortfolioDrawerContainer>

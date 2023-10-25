@@ -1,23 +1,17 @@
 import { Trans } from '@lingui/macro'
-import { BrowserEvent, InterfaceElementName, SwapEventName } from '@uniswap/analytics-events'
+import { InterfaceElementName } from '@uniswap/analytics-events'
 import { Percent } from '@uniswap/sdk-core'
-import { TraceEvent } from 'analytics'
 import AnimatedDropdown from 'components/AnimatedDropdown'
 import Column from 'components/Column'
 import SpinningLoader from 'components/Loader/SpinningLoader'
 import { SwapResult } from 'hooks/useSwapCallback'
-import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import ms from 'ms'
 import { ReactNode, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { easings, useSpring } from 'react-spring'
-import { InterfaceTrade, RouterPreference } from 'state/routing/types'
-import { isClassicTrade } from 'state/routing/utils'
-import { useRouterPreference, useUserSlippageTolerance } from 'state/user/hooks'
+import { InterfaceTrade } from 'state/routing/types'
 import styled, { useTheme } from 'styled-components'
 import { Separator, ThemedText } from 'theme/components'
-import getRoutingDiagramEntries from 'utils/getRoutingDiagramEntries'
-import { formatSwapButtonClickEventProperties } from 'utils/loggingFormatters'
 
 import { ReactComponent as ExpandoIconClosed } from '../../assets/svg/expando-icon-closed.svg'
 import { ReactComponent as ExpandoIconOpened } from '../../assets/svg/expando-icon-opened.svg'
@@ -80,12 +74,9 @@ function DropdownController({ open, onClick }: { open: boolean; onClick: () => v
 export default function SwapModalFooter({
   trade,
   allowedSlippage,
-  swapResult,
   onConfirm,
   swapErrorMessage,
   disabledConfirm,
-  fiatValueInput,
-  fiatValueOutput,
   showAcceptChanges,
   onAcceptChanges,
   isLoading,
@@ -102,10 +93,6 @@ export default function SwapModalFooter({
   onAcceptChanges: () => void
   isLoading: boolean
 }) {
-  const transactionDeadlineSecondsSinceEpoch = useTransactionDeadline()?.toNumber() // in seconds since epoch
-  const isAutoSlippage = useUserSlippageTolerance()[0] === 'auto'
-  const [routerPreference] = useRouterPreference()
-  const routes = isClassicTrade(trade) ? getRoutingDiagramEntries(trade) : undefined
   const theme = useTheme()
   const [showMore, setShowMore] = useState(false)
 
@@ -138,43 +125,26 @@ export default function SwapModalFooter({
         </SwapShowAcceptChanges>
       ) : (
         <AutoRow>
-          <TraceEvent
-            events={[BrowserEvent.onClick]}
-            element={InterfaceElementName.CONFIRM_SWAP_BUTTON}
-            name={SwapEventName.SWAP_SUBMITTED_BUTTON_CLICKED}
-            properties={formatSwapButtonClickEventProperties({
-              trade,
-              swapResult,
-              allowedSlippage,
-              transactionDeadlineSecondsSinceEpoch,
-              isAutoSlippage,
-              isAutoRouterApi: routerPreference === RouterPreference.API,
-              routes,
-              fiatValueInput: fiatValueInput.data,
-              fiatValueOutput: fiatValueOutput.data,
-            })}
+          <ConfirmButton
+            data-testid="confirm-swap-button"
+            onClick={onConfirm}
+            disabled={disabledConfirm}
+            $borderRadius="12px"
+            id={InterfaceElementName.CONFIRM_SWAP_BUTTON}
           >
-            <ConfirmButton
-              data-testid="confirm-swap-button"
-              onClick={onConfirm}
-              disabled={disabledConfirm}
-              $borderRadius="12px"
-              id={InterfaceElementName.CONFIRM_SWAP_BUTTON}
-            >
-              {isLoading ? (
-                <ThemedText.HeadlineSmall color="neutral2">
-                  <Row>
-                    <SpinningLoader />
-                    <Trans>Finalizing quote...</Trans>
-                  </Row>
-                </ThemedText.HeadlineSmall>
-              ) : (
-                <ThemedText.HeadlineSmall color="deprecated_accentTextLightPrimary">
-                  <Trans>Confirm swap</Trans>
-                </ThemedText.HeadlineSmall>
-              )}
-            </ConfirmButton>
-          </TraceEvent>
+            {isLoading ? (
+              <ThemedText.HeadlineSmall color="neutral2">
+                <Row>
+                  <SpinningLoader />
+                  <Trans>Finalizing quote...</Trans>
+                </Row>
+              </ThemedText.HeadlineSmall>
+            ) : (
+              <ThemedText.HeadlineSmall color="deprecated_accentTextLightPrimary">
+                <Trans>Confirm swap</Trans>
+              </ThemedText.HeadlineSmall>
+            )}
+          </ConfirmButton>
 
           {swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
         </AutoRow>

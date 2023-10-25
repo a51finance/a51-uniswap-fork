@@ -1,6 +1,4 @@
-import { InterfaceElementName, SwapEventName } from '@uniswap/analytics-events'
 import { useWeb3React } from '@web3-react/core'
-import { sendAnalyticsEvent } from 'analytics'
 import { Gas } from 'components/Icons/Gas'
 import { LoadingOpacityContainer } from 'components/Loader/styled'
 import { UniswapXRouterIcon } from 'components/RouterLabel/UniswapXRouterLabel'
@@ -33,16 +31,7 @@ export default function GasEstimateTooltip({ trade, loading }: { trade?: Submitt
   }
 
   return (
-    <MouseoverTooltip
-      size={TooltipSize.Small}
-      text={<GasBreakdownTooltip trade={trade} />}
-      onOpen={() => {
-        sendAnalyticsEvent(SwapEventName.SWAP_AUTOROUTER_VISUALIZATION_EXPANDED, {
-          element: InterfaceElementName.AUTOROUTER_VISUALIZATION_ROW,
-        })
-      }}
-      placement="right"
-    >
+    <MouseoverTooltip size={TooltipSize.Small} text={<GasBreakdownTooltip trade={trade} />} placement="right">
       <LoadingOpacityContainer $loading={loading}>
         <RowFixed gap="xs">
           {isUniswapXTrade(trade) ? <UniswapXRouterIcon testId="gas-estimate-uniswapx-icon" /> : <StyledGasIcon />}

@@ -1,26 +1,17 @@
 import { Trans } from '@lingui/macro'
-import {
-  InterfaceEventName,
-  InterfaceModalName,
-  SwapEventName,
-  SwapPriceUpdateUserResponse,
-} from '@uniswap/analytics-events'
 import { Currency, Percent } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
-import { sendAnalyticsEvent, Trace, useTrace } from 'analytics'
 import Badge from 'components/Badge'
 import { ChainLogo } from 'components/Logo/ChainLogo'
 import Modal, { MODAL_TRANSITION_DURATION } from 'components/Modal'
 import { RowFixed } from 'components/Row'
 import { getChainInfo } from 'constants/chainInfo'
 import { TransactionStatus } from 'graphql/data/__generated__/types-and-hooks'
-import { useMaxAmountIn } from 'hooks/useMaxAmountIn'
 import { Allowance, AllowanceState } from 'hooks/usePermit2Allowance'
 import usePrevious from 'hooks/usePrevious'
 import { SwapResult } from 'hooks/useSwapCallback'
 import useWrapCallback from 'hooks/useWrapCallback'
 import useNativeCurrency from 'lib/hooks/useNativeCurrency'
-import { getPriceUpdateBasisPoints } from 'lib/utils/analytics'
 import { useCallback, useEffect, useState } from 'react'
 import { InterfaceTrade, TradeFillType } from 'state/routing/types'
 import { isPreviewTrade } from 'state/routing/utils'
@@ -32,7 +23,6 @@ import invariant from 'tiny-invariant'
 import { isL2ChainId } from 'utils/chains'
 import { SignatureExpiredError } from 'utils/errors'
 import { NumberType, useFormatter } from 'utils/formatNumbers'
-import { formatSwapPriceUpdatedEventProperties } from 'utils/loggingFormatters'
 import { didUserReject } from 'utils/swapErrorToUserReadableMessage'
 import { tradeMeaningfullyDiffers } from 'utils/tradeMeaningFullyDiffer'
 
@@ -66,7 +56,6 @@ function isInApprovalPhase(confirmModalState: ConfirmModalState) {
 
 function useConfirmModalState({
   trade,
-  allowedSlippage,
   onSwap,
   allowance,
   doesTradeDiffer,
@@ -111,8 +100,6 @@ function useConfirmModalState({
   }, [allowance, trade])
 
   const { chainId } = useWeb3React()
-  const trace = useTrace()
-  const maximumAmountIn = useMaxAmountIn(trade, allowedSlippage)
 
   const nativeCurrency = useNativeCurrency(chainId)
 
@@ -145,13 +132,6 @@ function useConfirmModalState({
               // After the wrap has succeeded, reset the input currency to be WETH
               // because the trade will be on WETH -> token
               onCurrencySelection(Field.INPUT, trade.inputAmount.currency)
-              sendAnalyticsEvent(InterfaceEventName.WRAP_TOKEN_TXN_SUBMITTED, {
-                chain_id: chainId,
-                token_symbol: maximumAmountIn?.currency.symbol,
-                token_address: maximumAmountIn?.currency.address,
-                ...trade,
-                ...trace,
-              })
             })
             .catch((e) => catchUserReject(e, PendingModalError.WRAP_ERROR))
           break
@@ -183,17 +163,7 @@ function useConfirmModalState({
           break
       }
     },
-    [
-      allowance,
-      chainId,
-      maximumAmountIn?.currency.address,
-      maximumAmountIn?.currency.symbol,
-      onSwap,
-      onWrap,
-      trace,
-      trade,
-      onCurrencySelection,
-    ]
+    [allowance, onSwap, onWrap, trade, onCurrencySelection]
   )
 
   const startSwapFlow = useCallback(() => {
@@ -322,28 +292,19 @@ export default function ConfirmSwapModal({
   )
 
   const [lastExecutionPrice, setLastExecutionPrice] = useState(trade?.executionPrice)
-  const [priceUpdate, setPriceUpdate] = useState<number>()
   useEffect(() => {
     if (lastExecutionPrice && !trade.executionPrice.equalTo(lastExecutionPrice)) {
-      setPriceUpdate(getPriceUpdateBasisPoints(lastExecutionPrice, trade.executionPrice))
       setLastExecutionPrice(trade.executionPrice)
     }
   }, [lastExecutionPrice, setLastExecutionPrice, trade])
 
   const onModalDismiss = useCallback(() => {
-    if (showAcceptChanges) {
-      // If the user dismissed the modal while showing the price update, log the event as rejected.
-      sendAnalyticsEvent(
-        SwapEventName.SWAP_PRICE_UPDATE_ACKNOWLEDGED,
-        formatSwapPriceUpdatedEventProperties(trade, priceUpdate, SwapPriceUpdateUserResponse.REJECTED)
-      )
-    }
     onDismiss()
     setTimeout(() => {
       // Reset local state after the modal dismiss animation finishes, to avoid UI flicker as it dismisses
       onCancel()
     }, MODAL_TRANSITION_DURATION)
-  }, [onCancel, onDismiss, priceUpdate, showAcceptChanges, trade])
+  }, [onCancel, onDismiss])
 
   const modalHeader = useCallback(() => {
     if (confirmModalState !== ConfirmModalState.REVIEWING && !showAcceptChanges) {
@@ -427,20 +388,18 @@ export default function ConfirmSwapModal({
   const errorType = getErrorType()
 
   return (
-    <Trace modal={InterfaceModalName.CONFIRM_SWAP}>
-      <Modal isOpen $scrollOverlay onDismiss={onModalDismiss} maxHeight={90}>
-        {errorType ? (
-          <ErrorModalContent errorType={errorType} onRetry={startSwapFlow} />
-        ) : (
-          <ConfirmationModalContent
-            title={confirmModalState === ConfirmModalState.REVIEWING ? <Trans>Review swap</Trans> : undefined}
-            onDismiss={onModalDismiss}
-            topContent={modalHeader}
-            bottomContent={modalBottom}
-            headerContent={l2Badge}
-          />
-        )}
-      </Modal>
-    </Trace>
+    <Modal isOpen $scrollOverlay onDismiss={onModalDismiss} maxHeight={90}>
+      {errorType ? (
+        <ErrorModalContent errorType={errorType} onRetry={startSwapFlow} />
+      ) : (
+        <ConfirmationModalContent
+          title={confirmModalState === ConfirmModalState.REVIEWING ? <Trans>Review swap</Trans> : undefined}
+          onDismiss={onModalDismiss}
+          topContent={modalHeader}
+          bottomContent={modalBottom}
+          headerContent={l2Badge}
+        />
+      )}
+    </Modal>
   )
 }

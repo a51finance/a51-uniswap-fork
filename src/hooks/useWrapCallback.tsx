@@ -1,10 +1,7 @@
 import { Trans } from '@lingui/macro'
-import { InterfaceEventName } from '@uniswap/analytics-events'
 import { Currency } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
-import { sendAnalyticsEvent } from 'analytics'
 import useNativeCurrency from 'lib/hooks/useNativeCurrency'
-import { formatToDecimal, getTokenAddress } from 'lib/utils/analytics'
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
 import { useMemo, useState } from 'react'
 
@@ -84,15 +81,6 @@ export default function useWrapCallback(
     const hasInputAmount = Boolean(inputAmount?.greaterThan('0'))
     const sufficientBalance = inputAmount && balance && !balance.lessThan(inputAmount)
 
-    const eventProperties = {
-      token_in_address: getTokenAddress(inputCurrency),
-      token_out_address: getTokenAddress(outputCurrency),
-      token_in_symbol: inputCurrency.symbol,
-      token_out_symbol: outputCurrency.symbol,
-      chain_id: inputCurrency.chainId,
-      amount: inputAmount ? formatToDecimal(inputAmount, inputAmount?.currency.decimals) : undefined,
-    }
-
     if (inputCurrency.isNative && weth.equals(outputCurrency)) {
       return {
         wrapType: WrapType.WRAP,
@@ -104,12 +92,6 @@ export default function useWrapCallback(
                   network.chainId !== chainId ||
                   wethContract.address !== WRAPPED_NATIVE_CURRENCY[network.chainId]?.address
                 ) {
-                  sendAnalyticsEvent(InterfaceEventName.WRAP_TOKEN_TXN_INVALIDATED, {
-                    ...eventProperties,
-                    contract_address: wethContract.address,
-                    contract_chain_id: network.chainId,
-                    type: WrapType.WRAP,
-                  })
                   const error = new Error(`Invalid WETH contract
 Please file a bug detailing how this happened - https://github.com/Uniswap/interface/issues/new?labels=bug&template=bug-report.md&title=Invalid%20WETH%20contract`)
                   setError(error)
@@ -122,10 +104,7 @@ Please file a bug detailing how this happened - https://github.com/Uniswap/inter
                   currencyAmountRaw: inputAmount?.quotient.toString(),
                   chainId,
                 })
-                sendAnalyticsEvent(InterfaceEventName.WRAP_TOKEN_TXN_SUBMITTED, {
-                  ...eventProperties,
-                  type: WrapType.WRAP,
-                })
+
                 return txReceipt.hash
               }
             : undefined,
@@ -149,10 +128,7 @@ Please file a bug detailing how this happened - https://github.com/Uniswap/inter
                     currencyAmountRaw: inputAmount?.quotient.toString(),
                     chainId,
                   })
-                  sendAnalyticsEvent(InterfaceEventName.WRAP_TOKEN_TXN_SUBMITTED, {
-                    ...eventProperties,
-                    type: WrapType.UNWRAP,
-                  })
+
                   return txReceipt.hash
                 } catch (error) {
                   console.error('Could not withdraw', error)
